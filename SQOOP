@@ -3,14 +3,18 @@ sqoop list-databases \
 --username retail_dba \
 --password cloudera
 
-sqoop list-table \
+sqoop list-tables \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba \
 --password cloudera 
 
 sqoop eval \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba \
 --password cloudera \
 --query 'select * from retail_db.departments'
+
+
+--https://github.com/dgadiraju/code/blob/a01c909e382ae7da5077486536d58b677c24469f/hadoop/edw/cloudera/sqoop/sqoop_demo.txt
+
 
