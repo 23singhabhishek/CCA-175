@@ -1,0 +1,16 @@
+sqoop list-databases \
+--connect 'jdbc:mysql://quickstart.cloudera:3306' \
+--username retail_dba \
+--password cloudera
+
+sqoop list-table \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera 
+
+sqoop eval \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db \
+--username retail_dba \
+--password cloudera \
+--query 'select * from retail_db.departments'
+
