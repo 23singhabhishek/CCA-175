@@ -92,9 +92,11 @@ sqoop import \
 
 P.S: Do not create the folder 'prqfil' before executing the command
 Target directory should not have any special characters in the name
-****************************************************************************************************************************************
+
+********************************************************************************************************************************
 
 If the target directory exists, then add the option --delete-target-dir in the import statement.
+================================================================================================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -106,6 +108,9 @@ sqoop import \
 --delete-target-dir
 
 
+********************************************************************************************************************************
+-m,--num-mappers <n>	Use n map tasks to import in parallel
+===========================================================
 Default mappers = 4. Hence 4 files are created in the target directory.
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -114,9 +119,79 @@ sqoop import \
 --table departments \
 --target-dir=/user/cloudera/sqoop/sqoop-import/default
 --delete-target-dir
---m 1
+--m 2
+
+-rw-r--r--   1 cloudera cloudera          0 2016-12-28 23:21 /user/cloudera/sqoop/sqoop-import/default/_SUCCESS
+-rw-r--r--   1 cloudera cloudera    2647040 2016-12-28 23:21 /user/cloudera/sqoop/sqoop-import/default/part-m-00000
+-rw-r--r--   1 cloudera cloudera    2761840 2016-12-28 23:21 /user/cloudera/sqoop/sqoop-import/default/part-m-00001
+
+********************************************************************************************************************************
+--append	          Append data to an existing dataset in 
+=========================================================
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_db \
+--password cloudera \
+--table departments \
+--target-dir=/user/cloudera/sqoop/sqoop-import/default \
+--m 2 \
+--append
 
 
+Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2016-12-28 23:21 /user/cloudera/sqoop/sqoop-import/default/_SUCCESS
+-rw-r--r--   1 cloudera cloudera    2647040 2016-12-28 23:21 /user/cloudera/sqoop/sqoop-import/default/part-m-00000
+-rw-r--r--   1 cloudera cloudera    2761840 2016-12-28 23:21 /user/cloudera/sqoop/sqoop-import/default/part-m-00001
+-rw-r--r--   1 cloudera cloudera    2647040 2016-12-28 23:35 /user/cloudera/sqoop/sqoop-import/default/part-m-00002
+-rw-r--r--   1 cloudera cloudera    2761840 2016-12-28 23:35 /user/cloudera/sqoop/sqoop-import/default/part-m-00003
+
+
+********************************************************************************************************************************
+-e,--query <statement>	Import the results of statement.
+=========================================================
+--split-by <column-name>	Column of the table used to split work units. Cannot be used with --autoreset-to-one-mapper option.
+=========================================================
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera \
+--target-dir /user/cloudera/sqoop/sqoop-import/query \
+--e 'select order_item_order_id, sum(order_item_subtotal) from retail_db.order_items \
+ WHERE $CONDITIONS \
+ group by order_item_order_id' \
+ --split-by order_item_order_id \
+ --delete-target-dir
+ 
+ Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/_SUCCESS
+-rw-r--r--   1 cloudera cloudera     314751 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00000
+-rw-r--r--   1 cloudera cloudera     324255 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00001
+-rw-r--r--   1 cloudera cloudera     322985 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00002
+-rw-r--r--   1 cloudera cloudera     324405 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00003
+
+********************************************************************************************************************************
+
+
+sqoop import \
+--connect 'jdbc.mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera \
+--e "select * from departments WHERE /$CONDTIONS and department_name like '%o%'" \
+--target-dir /user/cloudera/sqoop/sqoop-import/cond
+-split-by department_id
+
+
+
+
+
+********************************************************************************************************************************
+
+
+********************************************************************************************************************************
+
+*********************************
 import-all
 compress
 boundary value
@@ -126,18 +201,19 @@ boundary value
 Table 3. Import control arguments:
 
 Argument	          Description
---append	          Append data to an existing dataset in HDFS
+
 
 --boundary-query <statement>	Boundary query to use for creating splits
 --columns <col,col,col…>	Columns to import from table
---delete-target-dir	Delete the import target directory if it exists
+
 --direct	Use direct connector if exists for the database
 --fetch-size <n>	Number of entries to read from database at once.
 --inline-lob-limit <n>	Set the maximum size for an inline LOB
--m,--num-mappers <n>	Use n map tasks to import in parallel
--e,--query <statement>	Import the results of statement.
---split-by <column-name>	Column of the table used to split work units. Cannot be used with --autoreset-to-one-mapper option.
---autoreset-to-one-mapper	Import should use one mapper if a table has no primary key and no split-by column is provided. Cannot be used with --split-by <col> option.
+
+
+
+--autoreset-to-one-mapper	Import should use one mapper if a table has no primary key and no split-by column is provided. 
+          Cannot be used with --split-by <col> option.
 --warehouse-dir <dir>	HDFS parent for table destination
 --where <where clause>	WHERE clause to use during import
 -z,--compress	Enable compression
@@ -146,6 +222,12 @@ Argument	          Description
 --null-non-string <null-string>	The string to be written for a null value for non-string columns
 
 
+
+
+hdfs dfs -tail /filepath  --> displays the last 1 kb of the file
+hdfs dfs -cat /filepath  --> displays the contents of the file
+hdfs dfs -cat /filepath |head --> first 10 lines
+hdfs dfs -cat /filepath |tail --> last 10 lines
 
 
 
