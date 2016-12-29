@@ -175,20 +175,76 @@ sqoop import \
 
 
 sqoop import \
---connect 'jdbc.mysql://quickstart.cloudera:3306/retail_db' \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba \
 --password cloudera \
---e "select * from departments WHERE /$CONDTIONS and department_name like '%o%'" \
+--e "select * from departments WHERE /$CONDITIONS and department_name like '%o%'" \
 --target-dir /user/cloudera/sqoop/sqoop-import/cond
--split-by department_id
-
-
-
+--split-by department_id
 
 
 ********************************************************************************************************************************
 
+sqoop import \
+--connect 'jdbc:mysql://quickstart:3306/retail_db'  \
+--username retail_dba \
+--password cloudera \
+--table customers  \
+--columns 'customer_id, customer_fname, customer_lname, customer_state, customer_zipcode'  \
+--target-dir /user/cloudera/sqoop/sqoop-import/impcols
 
+Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2016-12-29 07:10 /user/cloudera/sqoop/sqoop-import/impcols/_SUCCESS
+-rw-r--r--   1 cloudera cloudera      82611 2016-12-29 07:10 /user/cloudera/sqoop/sqoop-import/impcols/part-m-00000
+-rw-r--r--   1 cloudera cloudera      83780 2016-12-29 07:10 /user/cloudera/sqoop/sqoop-import/impcols/part-m-00001
+-rw-r--r--   1 cloudera cloudera      83644 2016-12-29 07:10 /user/cloudera/sqoop/sqoop-import/impcols/part-m-00002
+-rw-r--r--   1 cloudera cloudera      86031 2016-12-29 07:10 /user/cloudera/sqoop/sqoop-import/impcols/part-m-00003
+
+********************************************************************************************************************************
+
+-z,--compress	Enable compression
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart:3306/retail_db'  \
+--username retail_dba \
+--password cloudera \
+--table customers  \
+--columns 'customer_id, customer_fname, customer_lname, customer_state, customer_zipcode'  \
+--target-dir /user/cloudera/sqoop/sqoop-import/impcolsz \
+--z 
+
+Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2016-12-29 07:14 /user/cloudera/sqoop/sqoop-import/impcolsz/_SUCCESS
+-rw-r--r--   1 cloudera cloudera      27510 2016-12-29 07:14 /user/cloudera/sqoop/sqoop-import/impcolsz/part-m-00000.gz
+-rw-r--r--   1 cloudera cloudera      27592 2016-12-29 07:14 /user/cloudera/sqoop/sqoop-import/impcolsz/part-m-00001.gz
+-rw-r--r--   1 cloudera cloudera      27681 2016-12-29 07:14 /user/cloudera/sqoop/sqoop-import/impcolsz/part-m-00002.gz
+-rw-r--r--   1 cloudera cloudera      27687 2016-12-29 07:14 /user/cloudera/sqoop/sqoop-import/impcolsz/part-m-00003.gz
+
+
+********************************************************************************************************************************
+********************************************************************************************************************************
+********************************************************************************************************************************
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera \
+--target-dir /user/cloudera/sqoop/sqoop-import/query \
+--e 'select order_item_order_id, sum(order_item_subtotal) from retail_db.order_items \
+ WHERE $CONDITIONS \
+ group by order_item_order_id' \
+ --split-by order_item_order_id \
+ --delete-target-dir
+ 
+ 
+
+********************************************************************************************************************************
+
+
+
+********************************************************************************************************************************
+********************************************************************************************************************************
+********************************************************************************************************************************
 ********************************************************************************************************************************
 
 *********************************
@@ -216,7 +272,7 @@ Argument	          Description
           Cannot be used with --split-by <col> option.
 --warehouse-dir <dir>	HDFS parent for table destination
 --where <where clause>	WHERE clause to use during import
--z,--compress	Enable compression
+
 --compression-codec <c>	Use Hadoop codec (default gzip)
 --null-string <null-string>	The string to be written for a null value for string columns
 --null-non-string <null-string>	The string to be written for a null value for non-string columns
