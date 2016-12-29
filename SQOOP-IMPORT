@@ -94,7 +94,28 @@ P.S: Do not create the folder 'prqfil' before executing the command
 Target directory should not have any special characters in the name
 ****************************************************************************************************************************************
 
-Default mappers = 4
+If the target directory exists, then add the option --delete-target-dir in the import statement.
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_db \
+--password cloudera \
+--table departments \
+--as-sequencefile \
+--target-dir=/user/cloudera/sqoop/sqoop-import/seqfil
+--delete-target-dir
+
+
+Default mappers = 4. Hence 4 files are created in the target directory.
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_db \
+--password cloudera \
+--table departments \
+--target-dir=/user/cloudera/sqoop/sqoop-import/default
+--delete-target-dir
+--m 1
+
 
 import-all
 compress
