@@ -187,16 +187,17 @@ sqoop import \
 --target-dir /user/cloudera/sqoop/sqoop-import/cond
 --split-by department_id
 
-
+no.of records
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
 --username retail_dba \
 --password cloudera  \
---tablename departments  \
---where department_name like '%o%'  \
+--table departments  \
+--where "department_name like '%o%'"  \
 --target-dir /user/cloudera/sqoop/sqoop-import/where  
 
+no of records: 
 
 ********************************************************************************************************************************
 
@@ -295,9 +296,9 @@ sqoop import \
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
-*********************************
+************************************************************************************************************************************
 import-all
-
+===========
 
 sqoop import-all-tables \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -312,8 +313,8 @@ sqoop import-all-tables \
 --password cloudera \
 --warehouse-dir /user/hive/warehouse/sqpimp.db
 
-
-
+Above command creates the entries under the database sqpimp but doesn't create any hive tables
+----------------------------------------------------------------------------------------------
 
 
 sqoop import-all-tables  \
