@@ -303,7 +303,29 @@ sqoop import-all-tables \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba  \
 --password cloudera  \
---target-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
+--warehouse-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
+
+
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart:3306/retail_db'  \
+--username retail_Dba  \
+--password cloudera \
+--warehouse-dir /user/hive/warehouse/sqpimp.db
+
+
+
+
+
+sqoop import-all-tables  \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloduera \
+--hive-import  \
+--hive-overwrite \ 
+--create-hive-table  \
+--z  \
+--compression-codec org.apache.hadoop.io.compress.Snappycodec \
+--outdir java_files 
 
 
 
