@@ -188,6 +188,16 @@ sqoop import \
 --split-by department_id
 
 
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba \
+--password cloudera  \
+--tablename departments  \
+--where department_name like '%o%'  \
+--target-dir /user/cloudera/sqoop/sqoop-import/where  
+
+
 ********************************************************************************************************************************
 
 --columns <col,col,col…>	Columns to import from table
@@ -277,7 +287,7 @@ sqoop import \
  
 
 ********************************************************************************************************************************
-
+--warehouse-dir <dir>	HDFS parent for table destination
 
 
 ********************************************************************************************************************************
@@ -306,7 +316,7 @@ Argument	          Description
 
 
 .
---warehouse-dir <dir>	HDFS parent for table destination
+
 
 
 --compression-codec <c>	Use Hadoop codec (default gzip)
@@ -314,7 +324,13 @@ Argument	          Description
 --null-non-string <null-string>	The string to be written for a null value for non-string columns
 
 
-
+Argument	Description
+--enclosed-by <char>	Sets a required field enclosing character
+--escaped-by <char>	Sets the escape character
+--fields-terminated-by <char>	Sets the field separator character
+--lines-terminated-by <char>	Sets the end-of-line character
+--mysql-delimiters	Uses MySQL’s default delimiter set: fields: , lines: \n escaped-by: \ optionally-enclosed-by: '
+--optionally-enclosed-by <char>	Sets a field enclosing character
 
 hdfs dfs -tail /filepath  --> displays the last 1 kb of the file
 hdfs dfs -cat /filepath  --> displays the contents of the file
