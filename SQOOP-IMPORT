@@ -299,6 +299,12 @@ sqoop import \
 import-all
 
 
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba  \
+--password cloudera  \
+--target-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
+
 
 
 
