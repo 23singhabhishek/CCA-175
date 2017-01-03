@@ -1,0 +1,16 @@
+
+
+--compression-codec <c>	Use Hadoop codec (default gzip)
+========================================================
+
+sqoop import-all-tables  \
+--m 1
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera \
+--hive-import  \
+--hive-overwrite \
+--create-hive-table  \
+--z  \
+--compression-codec org.apache.hadoop.io.compress.Snappycodec \
+--outdir java_files 
