@@ -14,3 +14,49 @@ sqoop import-all-tables  \
 --z  \
 --compression-codec org.apache.hadoop.io.compress.Snappycodec \
 --outdir java_files 
+
+
+-- Copying into existing table or directory (append)
+-- Customizing number of threads (num-mappers)
+-- Changing delimiter
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --target-dir /user/hive/warehouse/retail_ods.db/departments \
+  --append \
+  --fields-terminated-by '|' \
+  --lines-terminated-by '\n' \
+  --num-mappers 1 \
+  --outdir java_files
+
+
+-- Hive related
+-- Overwrite existing data associated with hive table (hive-overwrite)
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --fields-terminated-by '|' \
+  --lines-terminated-by '\n' \
+  --hive-home /user/hive/warehouse/retail_ods.db \
+  --hive-import \
+  --hive-overwrite \
+  --hive-table departments \
+  --outdir java_files
+
+--Create hive table example
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --fields-terminated-by '|' \
+  --lines-terminated-by '\n' \
+  --hive-home /user/hive/warehouse \
+  --hive-import \
+  --hive-table departments_test \
+  --create-hive-table \
+  --outdir java_files
