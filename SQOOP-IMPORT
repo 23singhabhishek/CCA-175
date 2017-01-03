@@ -172,7 +172,12 @@ sqoop import \
 -rw-r--r--   1 cloudera cloudera     324405 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00003
 
 ********************************************************************************************************************************
-
+-e,--query <statement>	Import the results of statement.
+=========================================================
+--split-by <column-name>	Column of the table used to split work units. Cannot be used with --autoreset-to-one-mapper option.
+=========================================================
+--where <where clause>	WHERE clause to use during import
+========================================================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -184,6 +189,9 @@ sqoop import \
 
 
 ********************************************************************************************************************************
+
+--columns <col,col,col…>	Columns to import from table
+=====================================================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart:3306/retail_db'  \
@@ -201,8 +209,10 @@ Found 5 items
 -rw-r--r--   1 cloudera cloudera      86031 2016-12-29 07:10 /user/cloudera/sqoop/sqoop-import/impcols/part-m-00003
 
 ********************************************************************************************************************************
-
+--columns <col,col,col…>	Columns to import from table
+====================================================
 -z,--compress	Enable compression
+================================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart:3306/retail_db'  \
@@ -222,8 +232,36 @@ Found 5 items
 
 
 ********************************************************************************************************************************
+
+--boundary-query <statement>	Boundary query to use for creating splits
+======================================================================
+
+sqoop import  \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba \
+--password cloudera \
+--table order_items  \
+--target-dir /user/cloudera/sqoop/sqoop-import/bound  \
+--boundary-query 
+****************************************************************************/****************************************************
+
+--autoreset-to-one-mapper	Import should use one mapper if a table has no primary key and no split-by column is provided. 
+=========================================================================================================================
+Cannot be used with --split-by <col> option
+==========================================
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306:3306/retail_db' \
+--username retail_dba  \
+--password cloudera \
+--table order_items \
+--autoreset-to-one-mapper
+--target-dir user/cloudera/sqoop/sqoop-import/onemap
+
+
 ********************************************************************************************************************************
-********************************************************************************************************************************
+aggregate function
+==================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -249,8 +287,8 @@ sqoop import \
 
 *********************************
 import-all
-compress
-boundary value
+
+
 
 
 
@@ -259,8 +297,7 @@ Table 3. Import control arguments:
 Argument	          Description
 
 
---boundary-query <statement>	Boundary query to use for creating splits
---columns <col,col,col…>	Columns to import from table
+
 
 --direct	Use direct connector if exists for the database
 --fetch-size <n>	Number of entries to read from database at once.
@@ -268,10 +305,9 @@ Argument	          Description
 
 
 
---autoreset-to-one-mapper	Import should use one mapper if a table has no primary key and no split-by column is provided. 
-          Cannot be used with --split-by <col> option.
+.
 --warehouse-dir <dir>	HDFS parent for table destination
---where <where clause>	WHERE clause to use during import
+
 
 --compression-codec <c>	Use Hadoop codec (default gzip)
 --null-string <null-string>	The string to be written for a null value for string columns
