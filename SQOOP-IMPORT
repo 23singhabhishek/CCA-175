@@ -13,7 +13,8 @@ sqoop list-tables \
 --username retail_dba \
 --password cloudera 
 
-****************************************************************************************************************************************
+********************************************************************************************************************************
+********************************************************************************************************************************
 
 sqoop eval \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -28,7 +29,7 @@ sqoop eval \
 --password cloudera \
 --query 'select count(1) from retail_db.departments'
 
-
+********************************************************************************************************************************
 ****************************************************************************************************************************************
 
 --table <table-name>	Table to read
@@ -94,6 +95,7 @@ P.S: Do not create the folder 'prqfil' before executing the command
 Target directory should not have any special characters in the name
 
 ********************************************************************************************************************************
+********************************************************************************************************************************
 
 If the target directory exists, then add the option --delete-target-dir in the import statement.
 ================================================================================================
@@ -108,6 +110,7 @@ sqoop import \
 --delete-target-dir
 
 
+********************************************************************************************************************************
 ********************************************************************************************************************************
 -m,--num-mappers <n>	Use n map tasks to import in parallel
 ===========================================================
@@ -126,6 +129,8 @@ sqoop import \
 -rw-r--r--   1 cloudera cloudera    2761840 2016-12-28 23:21 /user/cloudera/sqoop/sqoop-import/default/part-m-00001
 
 ********************************************************************************************************************************
+********************************************************************************************************************************
+
 --append	          Append data to an existing dataset in 
 =========================================================
 
@@ -148,6 +153,8 @@ Found 5 items
 
 
 ********************************************************************************************************************************
+********************************************************************************************************************************
+
 -e,--query <statement>	Import the results of statement.
 =========================================================
 --split-by <column-name>	Column of the table used to split work units. Cannot be used with --autoreset-to-one-mapper option.
@@ -172,6 +179,8 @@ sqoop import \
 -rw-r--r--   1 cloudera cloudera     324405 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00003
 
 ********************************************************************************************************************************
+********************************************************************************************************************************
+
 -e,--query <statement>	Import the results of statement.
 =========================================================
 --split-by <column-name>	Column of the table used to split work units. Cannot be used with --autoreset-to-one-mapper option.
@@ -188,6 +197,9 @@ sqoop import \
 --split-by department_id
 
 no.of records
+[cloudera@quickstart ~]$ hdfs dfs -cat /user/cloudera/sqoop/sqoop-import/cond/par*|wc -l
+4
+
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
@@ -198,7 +210,10 @@ sqoop import \
 --target-dir /user/cloudera/sqoop/sqoop-import/where  
 
 no of records: 
+[cloudera@quickstart ~]$ hdfs dfs -cat /user/cloudera/sqoop/sqoop-import/where/par*|wc -l
+4
 
+********************************************************************************************************************************
 ********************************************************************************************************************************
 
 --columns <col,col,col…>	Columns to import from table
@@ -220,6 +235,8 @@ Found 5 items
 -rw-r--r--   1 cloudera cloudera      86031 2016-12-29 07:10 /user/cloudera/sqoop/sqoop-import/impcols/part-m-00003
 
 ********************************************************************************************************************************
+********************************************************************************************************************************
+
 --columns <col,col,col…>	Columns to import from table
 ====================================================
 -z,--compress	Enable compression
@@ -243,6 +260,7 @@ Found 5 items
 
 
 ********************************************************************************************************************************
+********************************************************************************************************************************
 
 --boundary-query <statement>	Boundary query to use for creating splits
 ======================================================================
@@ -253,7 +271,41 @@ sqoop import  \
 --password cloudera \
 --table order_items  \
 --target-dir /user/cloudera/sqoop/sqoop-import/bound  \
---boundary-query 
+--boundary-query 'select mib(order_item_id), max(order_item_id) from order_items where order_item_id < 300'
+
+17/01/03 09:23:15 INFO mapreduce.ImportJobBase: Transferred 7.5967 KB in 110.5198 seconds (70.3856 bytes/sec)
+17/01/03 09:23:15 INFO mapreduce.ImportJobBase: Retrieved 299 records.
+
+[cloudera@quickstart ~]$ hadoop fs -ls sqoop/sqoop-import/bound
+Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-03 09:23 sqoop/sqoop-import/bound/_SUCCESS
+-rw-r--r--   1 cloudera cloudera       1851 2017-01-03 09:23 sqoop/sqoop-import/bound/part-m-00000
+-rw-r--r--   1 cloudera cloudera       1957 2017-01-03 09:23 sqoop/sqoop-import/bound/part-m-00001
+-rw-r--r--   1 cloudera cloudera       1935 2017-01-03 09:23 sqoop/sqoop-import/bound/part-m-00002
+-rw-r--r--   1 cloudera cloudera       2036 2017-01-03 09:23 sqoop/sqoop-import/bound/part-m-00003
+
+
+sqoop import  \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba \
+--password cloudera \
+--table order_items  \
+--target-dir /user/cloudera/sqoop/sqoop-import/bound  \
+--boundary-query 'select 1, 299 from order_items'  \
+--delete-target-dir
+
+17/01/03 09:33:43 INFO mapreduce.ImportJobBase: Transferred 7.5967 KB in 97.475 seconds (79.8051 bytes/sec)
+17/01/03 09:33:44 INFO mapreduce.ImportJobBase: Retrieved 299 records.
+
+[cloudera@quickstart ~]$ hadoop fs -ls sqoop/sqoop-import/boundFound 5 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-03 09:33 sqoop/sqoop-import/bound/_SUCCESS
+-rw-r--r--   1 cloudera cloudera       1851 2017-01-03 09:33 sqoop/sqoop-import/bound/part-m-00000
+-rw-r--r--   1 cloudera cloudera       1957 2017-01-03 09:33 sqoop/sqoop-import/bound/part-m-00001
+-rw-r--r--   1 cloudera cloudera       1935 2017-01-03 09:33 sqoop/sqoop-import/bound/part-m-00002
+-rw-r--r--   1 cloudera cloudera       2036 2017-01-03 09:33 sqoop/sqoop-import/bound/part-m-00003
+
+
+
 ****************************************************************************/****************************************************
 
 --autoreset-to-one-mapper	Import should use one mapper if a table has no primary key and no split-by column is provided. 
@@ -262,13 +314,40 @@ Cannot be used with --split-by <col> option
 ==========================================
 
 sqoop import \
---connect 'jdbc:mysql://quickstart.cloudera:3306:3306/retail_db' \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba  \
 --password cloudera \
 --table order_items \
 --autoreset-to-one-mapper
---target-dir user/cloudera/sqoop/sqoop-import/onemap
 
+As target directory is not mentioned , a directory named order_items is created in the path /user/cloudera/order_items
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/o*Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-03 09:54 /user/cloudera/order_items/_SUCCESS
+-rw-r--r--   1 cloudera cloudera    1303818 2017-01-03 09:53 /user/cloudera/order_items/part-m-00000
+-rw-r--r--   1 cloudera cloudera    1343222 2017-01-03 09:53 /user/cloudera/order_items/part-m-00001
+-rw-r--r--   1 cloudera cloudera    1371917 2017-01-03 09:54 /user/cloudera/order_items/part-m-00002
+-rw-r--r--   1 cloudera cloudera    1389923 2017-01-03 09:54 /user/cloudera/order_items/part-m-00003
+
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba  \
+--password cloudera \
+--table order_items \
+--autoreset-to-one-mapper \
+--target-dir /user/cloudera/sqoop/sqoop-import/onemap
+
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop/sqoop-import/o*Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-03 10:11 /user/cloudera/sqoop/sqoop-import/onemap/_SUCCESS
+-rw-r--r--   1 cloudera cloudera    1303818 2017-01-03 10:11 /user/cloudera/sqoop/sqoop-import/onemap/part-m-00000
+-rw-r--r--   1 cloudera cloudera    1343222 2017-01-03 10:11 /user/cloudera/sqoop/sqoop-import/onemap/part-m-00001
+-rw-r--r--   1 cloudera cloudera    1371917 2017-01-03 10:11 /user/cloudera/sqoop/sqoop-import/onemap/part-m-00002
+-rw-r--r--   1 cloudera cloudera    1389923 2017-01-03 10:10 /user/cloudera/sqoop/sqoop-import/onemap/part-m-00003
+
+
+
+
+P.S.: check the above command with import-all-tables #####
 
 ********************************************************************************************************************************
 aggregate function
@@ -306,6 +385,20 @@ sqoop import-all-tables \
 --password cloudera  \
 --warehouse-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop/sqoop-import/sqpimpall/*
+Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/_SUCCESS
+-rw-r--r--   1 cloudera cloudera        271 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/part-m-00000
+-rw-r--r--   1 cloudera cloudera        263 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/part-m-00001
+-rw-r--r--   1 cloudera cloudera        266 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/part-m-00002
+-rw-r--r--   1 cloudera cloudera        229 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/part-m-00003
+Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-03 04:18 /user/cloudera/sqoop/sqoop-import/sqpimpall/customers/_SUCCESS
+-rw-r--r--   1 cloudera cloudera     237145 2017-01-03 04:18 /user/cloudera/sqoop/sqoop-import/sqpimpall/customers/part-m-00000
+-rw-r--r--   1 cloudera cloudera     237965 2017-01-03 04:18 /user/cloudera/sqoop/sqoop-import/sqpimpall/customers/part-m-00001
+
+
+
 
 sqoop import-all-tables \
 --connect 'jdbc:mysql://quickstart:3306/retail_db'  \
@@ -315,14 +408,50 @@ sqoop import-all-tables \
 
 Above command creates the entries under the database sqpimp but doesn't create any hive tables
 ----------------------------------------------------------------------------------------------
+hive> dfs -ls /user/hive/warehouse/sqpimp.db;
+Found 6 items
+drwxr-xr-x   - cloudera supergroup          0 2017-01-03 04:52 /user/hive/warehouse/sqpimp.db/categories
+drwxr-xr-x   - cloudera supergroup          0 2017-01-03 04:55 /user/hive/warehouse/sqpimp.db/customers
+drwxr-xr-x   - cloudera supergroup          0 2017-01-03 04:57 /user/hive/warehouse/sqpimp.db/departments
+drwxr-xr-x   - cloudera supergroup          0 2017-01-03 04:59 /user/hive/warehouse/sqpimp.db/order_items
+drwxr-xr-x   - cloudera supergroup          0 2017-01-03 05:02 /user/hive/warehouse/sqpimp.db/orders
+drwxr-xr-x   - cloudera supergroup          0 2017-01-03 05:04 /user/hive/warehouse/sqpimp.db/products
+hive> 
 
+
+--autoreset to one mapper : the no of mappers is set to one only if the sqoop table is without any primary key
+==============================================================================================================
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba  \
+--password cloudera  \
+--warehouse-dir /user/cloudera/sqoop/sqoop-import/impallat  \
+--autoreset-to-one-mapper
+
+p/sqoop-import/impallat/orders/part-m-00003
+Found 2 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-03 10:39 /user/cloudera/sqoop/sqoop-import/impallat/patient/_SUCCESS
+-rw-r--r--   1 cloudera cloudera      13880 2017-01-03 10:39 /user/cloudera/sqoop/sqoop-import/impallat/patient/part-m-00000
+Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-03 10:32 /user/cloudera/sqoop/sqoop-import/impallat/products/_SUCCESS
+-rw-r--r--   1 cloudera cloudera      41419 2017-01-03 10:32 /user/cloudera/sqoop/sqoop-import/impallat/products/part-m-00000
+-rw-r--r--   1 cloudera cloudera      43660 2017-01-03 10:32 /user/cloudera/sqoop/sqoop-import/impallat/products/part-m-00001
+-rw-r--r--   1 cloudera cloudera      42195 2017-01-03 10:32 /user/cloudera/sqoop/sqoop-import/impallat/products/part-m-00002
+-rw-r--r--   1 cloudera cloudera      46719 2017-01-03 10:32 /user/cloudera/sqoop/sqoop-import/impallat/products/part-m-00003
+
+
+
+
+--compression-codec <c>	Use Hadoop codec (default gzip)
+========================================================
 
 sqoop import-all-tables  \
+--m 1
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba \
---password cloduera \
+--password cloudera \
 --hive-import  \
---hive-overwrite \ 
+--hive-overwrite \
 --create-hive-table  \
 --z  \
 --compression-codec org.apache.hadoop.io.compress.Snappycodec \
@@ -348,7 +477,7 @@ Argument	          Description
 
 
 
---compression-codec <c>	Use Hadoop codec (default gzip)
+
 --null-string <null-string>	The string to be written for a null value for string columns
 --null-non-string <null-string>	The string to be written for a null value for non-string columns
 
@@ -366,5 +495,5 @@ hdfs dfs -cat /filepath  --> displays the contents of the file
 hdfs dfs -cat /filepath |head --> first 10 lines
 hdfs dfs -cat /filepath |tail --> last 10 lines
 
-
+hadoop fs -rm -r /*
 
