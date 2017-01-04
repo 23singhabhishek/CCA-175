@@ -161,7 +161,7 @@ Found 5 items
 =========================================================
 --split-by <column-name>	Column of the table used to split work units. Cannot be used with --autoreset-to-one-mapper option.
 =========================================================
-split-by is usually used on tables without primary key
+
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -180,6 +180,32 @@ sqoop import \
 -rw-r--r--   1 cloudera cloudera     324255 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00001
 -rw-r--r--   1 cloudera cloudera     322985 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00002
 -rw-r--r--   1 cloudera cloudera     324405 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00003
+
+
+split-by is usually used on tables without primary key
+======================================================
+
+sqoop import  \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/sqoop'  \
+--username root  \
+--password cloudera \
+--table patient \
+--split-by PID  \
+--target-dir /user/cloudera/sqoop/sqoop-import/splt
+
+
+note: for tables without primary key either import the data sequentially using m 1 or autoreset-to-one-mapper option else 
+use split-by
+
+17/01/04 10:52:20 INFO mapreduce.ImportJobBase: Retrieved 88 records.
+[cloudera@quickstart ~]$ hdfs dfs -ls /user/cloudera/sqoop/sqoop-import/splt
+
+Found 5 items
+-rw-r--r--   1 cloudera supergroup          0 2017-01-04 10:52 /user/cloudera/sqoop/sqoop-import/splt/_SUCCESS
+-rw-r--r--   1 cloudera supergroup       7569 2017-01-04 10:52 /user/cloudera/sqoop/sqoop-import/splt/part-m-00000
+-rw-r--r--   1 cloudera supergroup        300 2017-01-04 10:52 /user/cloudera/sqoop/sqoop-import/splt/part-m-00001
+-rw-r--r--   1 cloudera supergroup       4544 2017-01-04 10:52 /user/cloudera/sqoop/sqoop-import/splt/part-m-00002
+-rw-r--r--   1 cloudera supergroup       1467 2017-01-04 10:52 /user/cloudera/sqoop/sqoop-import/splt/part-m-00003
 
 ********************************************************************************************************************************
 ********************************************************************************************************************************
