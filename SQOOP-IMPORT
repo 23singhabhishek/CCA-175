@@ -1,6 +1,8 @@
 
 --https://github.com/dgadiraju/code/blob/a01c909e382ae7da5077486536d58b677c24469f/hadoop/edw/cloudera/sqoop/sqoop_demo.txt
 
+--query and --table are mutually exclusive
+
 
 
 sqoop list-databases \
@@ -159,6 +161,7 @@ Found 5 items
 =========================================================
 --split-by <column-name>	Column of the table used to split work units. Cannot be used with --autoreset-to-one-mapper option.
 =========================================================
+split-by is usually used on tables without primary key
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -303,6 +306,28 @@ sqoop import  \
 -rw-r--r--   1 cloudera cloudera       1957 2017-01-03 09:33 sqoop/sqoop-import/bound/part-m-00001
 -rw-r--r--   1 cloudera cloudera       1935 2017-01-03 09:33 sqoop/sqoop-import/bound/part-m-00002
 -rw-r--r--   1 cloudera cloudera       2036 2017-01-03 09:33 sqoop/sqoop-import/bound/part-m-00003
+
+
+
+sqoop import  \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba \
+--password cloudera \
+--table order_items  \
+--target-dir /user/cloudera/sqoop/sqoop-import/bound  \
+--boundary-query 'select 1, 299 from order_items limit 1'  \
+--delete-target-dir
+
+
+17/01/04 10:29:22 INFO mapreduce.ImportJobBase: Transferred 7.5967 KB in 83.0759 seconds (93.6373 bytes/sec)
+17/01/04 10:29:22 INFO mapreduce.ImportJobBase: Retrieved 299 records.
+[cloudera@quickstart ~]$ hdfs dfs -ls /user/cloudera/sqoop/sqoop-import/bou*
+Found 5 items
+-rw-r--r--   1 cloudera supergroup          0 2017-01-04 10:29 /user/cloudera/sqoop/sqoop-import/bound/_SUCCESS
+-rw-r--r--   1 cloudera supergroup       1851 2017-01-04 10:29 /user/cloudera/sqoop/sqoop-import/bound/part-m-00000
+-rw-r--r--   1 cloudera supergroup       1957 2017-01-04 10:29 /user/cloudera/sqoop/sqoop-import/bound/part-m-00001
+-rw-r--r--   1 cloudera supergroup       1935 2017-01-04 10:29 /user/cloudera/sqoop/sqoop-import/bound/part-m-00002
+-rw-r--r--   1 cloudera supergroup       2036 2017-01-04 10:29 /user/cloudera/sqoop/sqoop-import/bound/part-m-00003
 
 
 
