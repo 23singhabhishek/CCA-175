@@ -1,13 +1,10 @@
 
-***** Once the tables have been created, run the command hive> describe formatted tablename; to see more details..
-hive> dfs -du -s -h /user/hive/warehouse/categories;  to get the space occupied by the table data
-
 
 --compression-codec <c>	Use Hadoop codec (default gzip)
 ========================================================
 
 sqoop import-all-tables  \
---m 1  \
+--m 1
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba \
 --password cloudera \
@@ -15,40 +12,11 @@ sqoop import-all-tables  \
 --hive-overwrite \
 --create-hive-table  \
 --z  \
---outdir java_files 
-
-[cloudera@quickstart ~]$ hdfs dfs -ls /user/hive/warehouse/categories
-Found 4 items
--rwxrwxrwx   1 cloudera supergroup        215 2017-01-04 02:11 /user/hive/warehouse/categories/part-m-00000.gz
--rwxrwxrwx   1 cloudera supergroup        180 2017-01-04 02:11 /user/hive/warehouse/categories/part-m-00001.gz
--rwxrwxrwx   1 cloudera supergroup        191 2017-01-04 02:11 /user/hive/warehouse/categories/part-m-00002.gz
--rwxrwxrwx   1 cloudera supergroup        184 2017-01-04 02:11 /user/hive/warehouse/categories/part-m-00003.gz
-
-
-
-sqoop import  \
---m 5 \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_dba \
---password cloudera \
---hive-import  \
---hive-overwrite \
---create-hive-table  \
---table products  \
---z  \
---compression-codec snappy \
+--compression-codec org.apache.hadoop.io.compress.Snappycodec \
 --outdir java_files 
 
 
-[cloudera@quickstart ~]$ hdfs dfs -ls /user/hive/warehouse/products
-Found 5 items
--rwxrwxrwx   1 cloudera supergroup       9001 2017-01-04 09:59 /user/hive/warehouse/products/part-m-00000.snappy
--rwxrwxrwx   1 cloudera supergroup       9812 2017-01-04 09:59 /user/hive/warehouse/products/part-m-00001.snappy
--rwxrwxrwx   1 cloudera supergroup       9816 2017-01-04 09:59 /user/hive/warehouse/products/part-m-00002.snappy
--rwxrwxrwx   1 cloudera supergroup      11062 2017-01-04 09:59 /user/hive/warehouse/products/part-m-00003.snappy
--rwxrwxrwx   1 cloudera supergroup      11184 2017-01-04 09:59 /user/hive/warehouse/products/part-m-00004.snappy
-
-
+hive>describe  
 
 -- Copying into existing table or directory (append)
 -- Customizing number of threads (num-mappers)
@@ -94,3 +62,9 @@ sqoop import \
   --hive-table departments_test \
   --create-hive-table \
   --outdir java_files
+
+
+create hive table and do the import
+create the hive table while doing the import
+
+add it to default and newly created db.
