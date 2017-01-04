@@ -453,7 +453,7 @@ sqoop import-all-tables  \
 --hive-overwrite \
 --create-hive-table  \
 --z  \
---compression-codec org.apache.hadoop.io.compress.Snappycodec \
+--compression-codec org.apache.hadoop.io.compress.Snappycodec \  ##check this
 --outdir java_files 
 
 
@@ -466,18 +466,37 @@ sqoop import-all-tables \
 --m 5 \
 --warehouse-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
 
+deafult: fields are terminated by comma and lines are terminated by \n
 
 
 
 
-
-sqoop import-all-tables  \
+sqoop import  \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
 --username retail_dba  \
 --password cloudera   \
 --m 5 
---warehouse-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
---fiel
+--warehouse-dir /user/cloudera/sqoop/sqoop-import/term  \
+--table categories \
+--fields-terminated-by '|'  \
+--lines-terminated-by '\t'
+
+
+Note: warehouse-dir creates a directory with same name as the table name (i.e: categories). So, for the above command 
+the folder created would be ' /user/cloudera/sqoop/sqoop-import/term/categories). Two directories :- term and categories have been
+created
+
+sqoop import  \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba  \
+--password cloudera   \
+--m 5 
+--target-dir /user/cloudera/sqoop/sqoop-import/termtgt  \
+--table categories \
+--fields-terminated-by '#'  \
+--lines-terminated-by '\0'
+
+
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
