@@ -370,8 +370,7 @@ sqoop import \
 --warehouse-dir <dir>	HDFS parent for table destination
 
 
-********************************************************************************************************************************
-********************************************************************************************************************************
+
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
@@ -459,6 +458,28 @@ sqoop import-all-tables  \
 
 
 
+
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba  \
+--password cloudera  \
+--m 5 \
+--warehouse-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
+
+
+
+
+
+
+sqoop import-all-tables  \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba  \
+--password cloudera   \
+--m 5 
+--warehouse-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
+--fiel
+********************************************************************************************************************************
+********************************************************************************************************************************
 
 Table 3. Import control arguments:
 
