@@ -2,10 +2,39 @@
 a. Change directory: cd /etc/hive/conf
 b. List the files: ls -ltr
 Verify if the file hive-site.xml is present in the location
-c. Create soft link in spark/conf directory
+c. List the files in /etc/spark/conf/
+[cloudera@quickstart conf]$ ls -ltr /etc/spark/conf/
+total 52
+-rwxr-xr-x 1 root root 4209 Jun 16  2016 spark-env.sh.template
+-rw-r--r-- 1 root root 1292 Jun 16  2016 spark-defaults.conf.template
+-rw-r--r-- 1 root root  865 Jun 16  2016 slaves.template
+-rw-r--r-- 1 root root 6671 Jun 16  2016 metrics.properties.template
+-rw-r--r-- 1 root root 2025 Jun 16  2016 log4j.properties.template
+-rw-r--r-- 1 root root 1105 Jun 16  2016 fairscheduler.xml.template
+-rw-r--r-- 1 root root  987 Jun 16  2016 docker.properties.template
+-rwxr-xr-x 1 root root 6029 Jun 16  2016 spark-env.sh
+-rw-r--r-- 1 root root 1292 Jun 16  2016 spark-defaults.conf
+-rw-rw-r-- 1 root root   92 Aug 10 19:52 slaves
+
+
+d. Create soft link in spark/conf directory
 sudo ln -s /etc/hive/conf/hive-site.xml /etc/spark/conf/hive-site.xml
-d. List the files in /etc/spark/conf
+e. List the files in /etc/spark/conf
 ls -ltr /etc/spark/conf/
 
-the 
+[cloudera@quickstart conf]$ ls -ltr /etc/spark/conf/total 52
+-rwxr-xr-x 1 root root 4209 Jun 16  2016 spark-env.sh.template
+-rw-r--r-- 1 root root 1292 Jun 16  2016 spark-defaults.conf.template
+-rw-r--r-- 1 root root  865 Jun 16  2016 slaves.template
+-rw-r--r-- 1 root root 6671 Jun 16  2016 metrics.properties.template
+-rw-r--r-- 1 root root 2025 Jun 16  2016 log4j.properties.template
+-rw-r--r-- 1 root root 1105 Jun 16  2016 fairscheduler.xml.template
+-rw-r--r-- 1 root root  987 Jun 16  2016 docker.properties.template
+-rwxr-xr-x 1 root root 6029 Jun 16  2016 spark-env.sh
+-rw-r--r-- 1 root root 1292 Jun 16  2016 spark-defaults.conf
+-rw-rw-r-- 1 root root   92 Aug 10 19:52 slaves
+lrwxrwxrwx 1 root root   28 Jan  6 03:55 hive-site.xml -> /etc/hive/conf/hive-site.xml
 
+f. Launch spark-shell in scala context
+$ spark-shell
+scala> 
