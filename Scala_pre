@@ -37,4 +37,14 @@ lrwxrwxrwx 1 root root   28 Jan  6 03:55 hive-site.xml -> /etc/hive/conf/hive-si
 
 f. Launch spark-shell in scala context
 $ spark-shell
-scala> 
+scala> sqlConext.sql("select * from departments").collect().foreach(println)
+[2,Fitness]                                                                     
+[3,Footwear]
+[4,Apparel]
+[5,Golf]
+[6,Outdoors]
+[7,Fan Shop]
+
+
+scala> sqlContext.sql("Select * from departments").count()
+res4: Long = 6  
