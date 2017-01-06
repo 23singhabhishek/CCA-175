@@ -1,0 +1,11 @@
+
+a. Change directory: cd /etc/hive/conf
+b. List the files: ls -ltr
+Verify if the file hive-site.xml is present in the location
+c. Create soft link in spark/conf directory
+sudo ln -s /etc/hive/conf/hive-site.xml /etc/spark/conf/hive-site.xml
+d. List the files in /etc/spark/conf
+ls -ltr /etc/spark/conf/
+
+the 
+
