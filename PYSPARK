@@ -1,1 +1,92 @@
+# Reading and Saving Text files (pyspark)
+# Files can be read from HDFS, local file system, HDFS with fully qualified names.
+# Python is case sensitive
+
+[cloudera@quickstart ~]$ hdfs dfs -cat departments/par*
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+
+
+[cloudera@quickstart ~]$ hdfs dfs -cat /user/cloudera/departments/par*
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+
+
+[cloudera@quickstart ~]$ cat Documents/Datasets/weathers.csv
+id,name
+1,FINE
+2,OCAST
+3,SHWRY
+4,
+
+[cloudera@quickstart Documents]$ cat /home/cloudera/Documents/Datasets/weathers.csv
+id,name
+1,FINE
+2,OCAST
+3,SHWRY
+4,
+
+
+
+
+
+
+a. Launch pyspark
+$ pyspark
+
+b. Spark would be launched
+
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.6.0
+      /_/
+
+Using Python version 2.6.6 (r266:84292, Jul 23 2015 15:22:56)
+SparkContext available as sc, HiveContext available as sqlContext.
+>>> from pyspark import SparkContext    (This step is not necessary as we see that SparkContext is availabe as sc)
+>>> sc.textFile("departments")
+>>> data = sc.textFile("departments")
+>>> for i in data.collect():
+...   print(i)
+...
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+
+>>> data = sc.textFile("/user/cloudera/departments")
+>>> for i in data.collect():
+...   print(i)
+...
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+
+
+>>> data = sc.textFile("file:///home/cloudera/Documents/Datasets/weathers.csv")
+>>> for i in data.collect():
+...   print(i)
+...    
+id,name
+1,FINE
+2,OCAST
+3,SHWRY
+4,
+
+
 
