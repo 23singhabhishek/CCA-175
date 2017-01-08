@@ -1,7 +1,12 @@
 
+Sqoop import into a hive table: the data is stored in a temp directory rg: if we are importing the departments directory,
+the data is forst copied to /user/cloudera/departments. After this the data is written to /user/hive/warehouse/*.
+Then the data in /user/cloudera/departments is deleted.
+
+
 
 --compression-codec <c>	Use Hadoop codec (default gzip)
-========================================================
+======================================l==================
 
 sqoop import-all-tables  \
 --m 1
@@ -16,7 +21,95 @@ sqoop import-all-tables  \
 --outdir java_files 
 
 
-hive>describe  
+hive>describe  formatted tablename
+
+
+TABLE CREATION WHILE IMPORTING
+****import a table without any primary key (sqoop.patient)
+[cloudera@quickstart ~]$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/sqoop' --username root 
+--password cloudera --table patient 
+--hive-home /user/hive/warehouse/sqoop --hive-import --create-hive-table --split-by 'PID'
+
+The table was created in default database.
+
+[cloudera@quickstart ~]$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/sqoop' --username root 
+--password cloudera --table patient 
+--hive-home /user/hive/warehouse/sqoop.db --hive-import --create-hive-table --split-by 'PID'
+
+The table was created in default database.
+
+[cloudera@quickstart ~]$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/sqoop' --username root \
+--password cloudera --table patient \
+--hive-home /user/hive/warehouse --hive-import --create-hive-table --hive-table sqoop.patient --split-by 'PID'
+
+
+
+
+**** import a table with primary key
+$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba --password cloudera \
+--table orders \
+--hive-import \
+--hive-home /user/hive/warehouse \
+--create-hive-table \
+--hive-table sqoop.orders
+
+
+IMPORT SQOOP DATA TO AN EXISITNG HIVE TABLE
+
+a. Create Hive table:
+create table sqoop.departments_new (department_id int, department_name varchar(45));
+
+$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table departments --hive-import --hive-home /user/hive/warehouse --hive-table sqoop.departments_new
+
+hive> select * from departments_new;
+OK
+2	Fitness
+3	Footwear
+4	Apparel
+5	Golf
+6	Outdoors
+7	Fan Shop
+
+
+OVERWRITE DATA
+==============
+
+$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--m 2 --table departments --hive-import --hive-home /user/hive/warehouse --hive-table sqoop.departments_new
+
+$ hdfs dfs -ls /user/hive/warehouse/sqoop.db/depar*
+Found 6 items
+-rwxrwxrwx   1 cloudera supergroup         21 2017-01-08 03:14 /user/hive/warehouse/sqoop.db/departments_new/part-m-00000
+-rwxrwxrwx   1 cloudera supergroup         31 2017-01-08 04:02 /user/hive/warehouse/sqoop.db/departments_new/part-m-00000_copy_1
+-rwxrwxrwx   1 cloudera supergroup         10 2017-01-08 03:14 /user/hive/warehouse/sqoop.db/departments_new/part-m-00001
+-rwxrwxrwx   1 cloudera supergroup         29 2017-01-08 04:02 /user/hive/warehouse/sqoop.db/departments_new/part-m-00001_copy_1
+-rwxrwxrwx   1 cloudera supergroup          7 2017-01-08 03:14 /user/hive/warehouse/sqoop.db/departments_new/part-m-00002
+-rwxrwxrwx   1 cloudera supergroup         22 2017-01-08 03:14 /user/hive/warehouse/sqoop.db/departments_new/part-m-00003
+
+hive> select * from departments_new;
+OK
+2	Fitness
+3	Footwear
+2	Fitness
+3	Footwear
+4	Apparel
+4	Apparel
+5	Golf
+6	Outdoors
+7	Fan Shop
+5	Golf
+6	Outdoors
+7	Fan Shop
+Time taken: 0.298 seconds, Fetched: 12 row(s)
+
+
+$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--m 2 --table departments --hive-import --hive-home /user/hive/warehouse --hive-table sqoop.departments_new --hive-overwrite
+
+
+
 
 -- Copying into existing table or directory (append)
 -- Customizing number of threads (num-mappers)
