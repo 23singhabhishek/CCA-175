@@ -565,4 +565,75 @@ sqoop import  \
 Incremental import
 ==================
 
+[cloudera@quickstart ~]$ hdfs dfs -ls /user/cloudera/d*
+Found 5 items
+-rw-r--r--   1 cloudera supergroup          0 2017-01-06 06:03 /user/cloudera/dpts/_SUCCESS
+-rw-r--r--   1 cloudera supergroup         21 2017-01-06 06:03 /user/cloudera/dpts/part-m-00000
+-rw-r--r--   1 cloudera supergroup         10 2017-01-06 06:03 /user/cloudera/dpts/part-m-00001
+-rw-r--r--   1 cloudera supergroup          7 2017-01-06 06:03 /user/cloudera/dpts/part-m-00002
+-rw-r--r--   1 cloudera supergroup         22 2017-01-06 06:03 /user/cloudera/dpts/part-m-00003
+
+$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table departments --target-dir /user/cloudera/dpts --append --where 'department_id > 8'
+
+[cloudera@quickstart ~]$  hdfs dfs -ls /user/cloudera/dpts/p*
+-rw-r--r--   1 cloudera supergroup         21 2017-01-06 06:03 /user/cloudera/dpts/part-m-00000
+-rw-r--r--   1 cloudera supergroup         10 2017-01-06 06:03 /user/cloudera/dpts/part-m-00001
+-rw-r--r--   1 cloudera supergroup          7 2017-01-06 06:03 /user/cloudera/dpts/part-m-00002
+-rw-r--r--   1 cloudera supergroup         22 2017-01-06 06:03 /user/cloudera/dpts/part-m-00003
+-rw-r--r--   1 cloudera supergroup         10 2017-01-08 04:46 /user/cloudera/dpts/part-m-00004
+-rw-r--r--   1 cloudera supergroup          0 2017-01-08 04:45 /user/cloudera/dpts/part-m-00005
+-rw-r--r--   1 cloudera supergroup          0 2017-01-08 04:45 /user/cloudera/dpts/part-m-00006
+-rw-r--r--   1 cloudera supergroup         10 2017-01-08 04:46 /user/cloudera/dpts/part-m-00007
+
+[cloudera@quickstart ~]$  hdfs dfs -cat /user/cloudera/dpts/p*
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+10,Test10
+20,Test20
+
+
+$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table departments --target-dir /user/cloudera/dpts --append --check-column 'department_id' --incremental append \
+--last-value 10
+
+17/01/08 05:15:54 INFO tool.ImportTool: Incremental import complete! To run another incremental import of all data 
+following this import, supply the following arguments:
+17/01/08 05:15:54 INFO tool.ImportTool:  --incremental append
+17/01/08 05:15:54 INFO tool.ImportTool:   --check-column department_id
+17/01/08 05:15:54 INFO tool.ImportTool:   --last-value 40
+17/01/08 05:15:54 INFO tool.ImportTool: (Consider saving this with 'sqoop job --create')
+
+[cloudera@quickstart ~]$  hdfs dfs -ls /user/cloudera/dpts/p*
+-rw-r--r--   1 cloudera supergroup         21 2017-01-06 06:03 /user/cloudera/dpts/part-m-00000
+-rw-r--r--   1 cloudera supergroup         10 2017-01-06 06:03 /user/cloudera/dpts/part-m-00001
+-rw-r--r--   1 cloudera supergroup          7 2017-01-06 06:03 /user/cloudera/dpts/part-m-00002
+-rw-r--r--   1 cloudera supergroup         22 2017-01-06 06:03 /user/cloudera/dpts/part-m-00003
+-rw-r--r--   1 cloudera supergroup         10 2017-01-08 04:46 /user/cloudera/dpts/part-m-00004
+-rw-r--r--   1 cloudera supergroup          0 2017-01-08 04:45 /user/cloudera/dpts/part-m-00005
+-rw-r--r--   1 cloudera supergroup          0 2017-01-08 04:45 /user/cloudera/dpts/part-m-00006
+-rw-r--r--   1 cloudera supergroup         10 2017-01-08 04:46 /user/cloudera/dpts/part-m-00007
+-rw-r--r--   1 cloudera supergroup         10 2017-01-08 05:15 /user/cloudera/dpts/part-m-00008
+-rw-r--r--   1 cloudera supergroup          0 2017-01-08 05:15 /user/cloudera/dpts/part-m-00009
+-rw-r--r--   1 cloudera supergroup         10 2017-01-08 05:15 /user/cloudera/dpts/part-m-00010
+-rw-r--r--   1 cloudera supergroup         10 2017-01-08 05:15 /user/cloudera/dpts/part-m-00011
+
+
+
+[cloudera@quickstart ~]$  hdfs dfs -cat /user/cloudera/dpts/p*
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+10,Test10
+20,Test20
+20,Test20
+30,Test30
+40,Test40
 
