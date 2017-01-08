@@ -601,6 +601,9 @@ $ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --use
 --table departments --target-dir /user/cloudera/dpts --append --check-column 'department_id' --incremental append \
 --last-value 10
 
+BoundingValsQuery: SELECT MIN(`department_id`), MAX(`department_id`) FROM `departments` 
+WHERE ( `department_id` > 10 AND `department_id` <= 40 )
+..............
 17/01/08 05:15:54 INFO tool.ImportTool: Incremental import complete! To run another incremental import of all data 
 following this import, supply the following arguments:
 17/01/08 05:15:54 INFO tool.ImportTool:  --incremental append
