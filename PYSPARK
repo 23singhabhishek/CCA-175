@@ -1,43 +1,7 @@
 # Reading and Saving Text files (pyspark)
+# Each line is read as a record in case of text files
 # Files can be read from HDFS, local file system, HDFS with fully qualified names.
 # Python is case sensitive
-
-[cloudera@quickstart ~]$ hdfs dfs -cat departments/par*
-2,Fitness
-3,Footwear
-4,Apparel
-5,Golf
-6,Outdoors
-7,Fan Shop
-
-
-[cloudera@quickstart ~]$ hdfs dfs -cat /user/cloudera/departments/par*
-2,Fitness
-3,Footwear
-4,Apparel
-5,Golf
-6,Outdoors
-7,Fan Shop
-
-
-[cloudera@quickstart ~]$ cat Documents/Datasets/weathers.csv
-id,name
-1,FINE
-2,OCAST
-3,SHWRY
-4,
-
-[cloudera@quickstart Documents]$ cat /home/cloudera/Documents/Datasets/weathers.csv
-id,name
-1,FINE
-2,OCAST
-3,SHWRY
-4,
-
-
-
-
-
 
 a. Launch pyspark
 $ pyspark
@@ -55,10 +19,36 @@ Using Python version 2.6.6 (r266:84292, Jul 23 2015 15:22:56)
 SparkContext available as sc, HiveContext available as sqlContext.
 >>> from pyspark import SparkContext    (This step is not necessary as we see that SparkContext is availabe as sc)
 >>> sc.textFile("departments")
+
+i. hdfs file
+   ---------
+
+[cloudera@quickstart ~]$ hdfs dfs -cat departments/par*
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+
 >>> data = sc.textFile("departments")
 >>> for i in data.collect():
 ...   print(i)
 ...
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+
+>>> data.saveAsTextFile("pyspark/hdfs1")
+
+
+ii. hdfs file
+    ---------
+     
+[cloudera@quickstart ~]$ hdfs dfs -cat /user/cloudera/departments/par*
 2,Fitness
 3,Footwear
 4,Apparel
@@ -77,6 +67,54 @@ SparkContext available as sc, HiveContext available as sqlContext.
 6,Outdoors
 7,Fan Shop
 
+>>> data.saveAsTextFile("pyspark/hdfs2")
+
+iii. hdfs file
+     ---------
+
+
+[cloudera@quickstart ~]$ view /etc/hadoop/conf/core-site.xml
+.................
+<configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://quickstart.cloudera:8020</value>
+    
+    .............
+    
+    
+    
+>>> data = sc.textFile("hdfs://quickstart.cloudera:8020/user/cloudera/departments")
+>>> for i in data.collect():
+...   print(i)
+...
+2,Fitness
+3,Footwear
+4,Apparel
+5,Golf
+6,Outdoors
+7,Fan Shop
+
+>>> data.saveAsTextFile("pyspark/hdfs3")
+
+     
+iv. local filesystem
+    -----------------
+[cloudera@quickstart ~]$ cat Documents/Datasets/weathers.csv
+id,name
+1,FINE
+2,OCAST
+3,SHWRY
+4,
+
+
+[cloudera@quickstart Documents]$ cat /home/cloudera/Documents/Datasets/weathers.csv
+id,name
+1,FINE
+2,OCAST
+3,SHWRY
+4,
+
 
 >>> data = sc.textFile("file:///home/cloudera/Documents/Datasets/weathers.csv")
 >>> for i in data.collect():
@@ -88,5 +126,12 @@ id,name
 3,SHWRY
 4,
 
+>>> data.saveAsTextFile("pyspark/localds")
+
+*********************************************************************************************************************************************************************************************
+*********************************************************************************************************************************************************************************************
+
+# Reading and Saving Sequence files
+# metadata driven, key value
 
 
