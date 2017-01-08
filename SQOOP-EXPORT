@@ -7,7 +7,7 @@ sqoop export \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba \
 --password cloudera \
---export-dir /user/cloudera/sqoop/sqoop-import/orderitems/part*
+--export-dir /user/cloudera/sqoop/sqoop-import/orderitems/part* \
 --table order_items_export \
 --m 5
 --batch
