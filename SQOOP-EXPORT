@@ -1,6 +1,7 @@
 
 Create table in retail_db with no data (the where cond 1 = 2 is alwasy FALSE, hence the data is not inserted into the newly
-created table)
+created table). No primary key gets created.
+
 create table order_items_export as select * from order_items where 1= 2;
 
 sqoop export \
@@ -21,6 +22,176 @@ mysql> select count(1) from retail_db.order_items_export;
 1 row in set (0.39 sec)
 
 
+run the same command again
+
+The records are inserted again
+
+
+
+
+STAGING TABLE CONCEPT: used only in insert mode. works for tables with no primary key
+=====================
+Create table depts_exp similar to departments table;
+
+mysql> select * from depts_exp;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|             2 | Fitness         |
+|             3 | Footwear        |
+|             4 | Apparel         |
+|             5 | Golf            |
+|             6 | Outdoors        |
+|             7 | Fan Shop        |
+|            10 | Test10          |
+|            20 | Test20          |
+|            30 | Test30          |
+|            40 | Test40          |
++---------------+-----------------+
+10 rows in set (0.00 sec)
+
+mysql> describe depts_exp
+    -> ;
++-----------------+-------------+------+-----+---------+-------+
+| Field           | Type        | Null | Key | Default | Extra |
++-----------------+-------------+------+-----+---------+-------+
+| department_id   | int(11)     | NO   |     | 0       |       |
+| department_name | varchar(45) | NO   |     | NULL    |       |
++-----------------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+*****
+
+
+UPDATE MODE (UPDATEONLY):
+==========
+sqoop export \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/depts_exp \
+--table departments \
+--update-mode updateonly \
+--update-key department_id 
+
+mysql> select * from departments;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|             2 | Fitness         |
+|             3 | Footwear        |
+|             4 | Apparel         |
+|             5 | Golf            |
+|             6 | Outdoors        |
+|             7 | Fan Shop        |
+|            10 | Test10          |
+|            20 | Test20          |
+|            30 | Test30          |
+|            40 | Test40          |
++---------------+-----------------+
+10 rows in set (0.00 sec)
+
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-export/*
+7,FanShop
+9,Test09
+30,Test 30
+
+
+mysql> select * from departments;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|             2 | Fitness         |
+|             3 | Footwear        |
+|             4 | Apparel         |
+|             5 | Golf            |
+|             6 | Outdoors        |
+|             7 | FanShop         |
+|            10 | Test10          |
+|            20 | Test20          |
+|            30 | Test 30         |
+|            40 | Test40          |
++---------------+-----------------+
+10 rows in set (0.09 sec)
+
+UPDATE MODE(ALLOWINSERT)
+=====================
+sqoop export \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/depts_exp1 \
+--table departments \
+--update-mode allowinsert \
+--update-key department_id 
+
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-export/depts_exp1
+7,Fan Shop
+9,Test09
+30,Test30
+
+mysql> select * from departments;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|             2 | Fitness         |
+|             3 | Footwear        |
+|             4 | Apparel         |
+|             5 | Golf            |
+|             6 | Outdoors        |
+|             7 | Fan Shop        |
+|             9 | Test09          |
+|            10 | Test10          |
+|            20 | Test20          |
+|            30 | Test30          |
+|            40 | Test40          |
++---------------+-----------------+
+11 rows in set (0.15 sec)
+
+
+
+P.S: When trying to run the command in insert mode, the job failed due to 
+duplicate entry for the keys (7,9,30) specified in the export file 
+
+sqoop export \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/depts_exp1 \
+--table departments 
+
+
+Now, lets try running the same command with an additional new key present in the export file.
+
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-export/depts_exp2
+7,Fan Shop
+9,Test09
+30,Test30
+50,Test50
+
+sqoop export \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/depts_exp2 \
+--table departments 
+
+
+This also fails but the record is inserted
+mysql> select * from departments;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|             2 | Fitness         |
+|             3 | Footwear        |
+|             4 | Apparel         |
+|             5 | Golf            |
+|             6 | Outdoors        |
+|             7 | Fan Shop        |
+|             9 | Test09          |
+|            10 | Test10          |
+|            20 | Test20          |
+|            30 | Test30          |
+|            40 | Test40          |
+|            50 | Test50          |
++---------------+-----------------+
+12 rows in set (0.00 sec)
 
 
 *********************************************************************************************************************************
