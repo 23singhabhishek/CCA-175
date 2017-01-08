@@ -4,6 +4,15 @@
 --query and --table are mutually exclusive
 
 
+hdfs dfs -tail /filepath  --> displays the last 1 kb of the file
+hdfs dfs -cat /filepath  --> displays the contents of the file
+hdfs dfs -cat /filepath |head --> first 10 lines
+hdfs dfs -cat /filepath |tail --> last 10 lines
+
+hadoop fs -rm -r /*
+
+hadoop fs -mv <old_path> <new_path>
+
 
 sqoop list-databases \
 --connect 'jdbc:mysql://quickstart.cloudera:3306' \
@@ -553,13 +562,7 @@ sqoop import  \
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
+Incremental import
+==================
 
-
-
-hdfs dfs -tail /filepath  --> displays the last 1 kb of the file
-hdfs dfs -cat /filepath  --> displays the contents of the file
-hdfs dfs -cat /filepath |head --> first 10 lines
-hdfs dfs -cat /filepath |tail --> last 10 lines
-
-hadoop fs -rm -r /*
 
