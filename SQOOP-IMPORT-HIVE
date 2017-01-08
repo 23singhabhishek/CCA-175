@@ -56,7 +56,7 @@ $ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 
 
 IMPORT SQOOP DATA TO AN EXISITNG HIVE TABLE
-
+==========================
 a. Create Hive table:
 create table sqoop.departments_new (department_id int, department_name varchar(45));
 
@@ -108,8 +108,26 @@ Time taken: 0.298 seconds, Fetched: 12 row(s)
 $ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
 --m 2 --table departments --hive-import --hive-home /user/hive/warehouse --hive-table sqoop.departments_new --hive-overwrite
 
+[cloudera@quickstart ~]$ hdfs dfs -ls /user/hive/warehouse/sqoop.db/depar*Found 2 items
+-rwxrwxrwx   1 cloudera supergroup         31 2017-01-08 04:08 /user/hive/warehouse/sqoop.db/departments_new/part-m-00000
+-rwxrwxrwx   1 cloudera supergroup         29 2017-01-08 04:08 /user/hive/warehouse/sqoop.db/departments_new/part-m-00001
 
 
+Time taken: 0.298 seconds, Fetched: 12 row(s)
+hive> select * from departments_new;
+OK
+2	Fitness
+3	Footwear
+4	Apparel
+5	Golf
+6	Outdoors
+7	Fan Shop
+Time taken: 0.345 seconds, Fetched: 6 row(s)
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 -- Copying into existing table or directory (append)
 -- Customizing number of threads (num-mappers)
