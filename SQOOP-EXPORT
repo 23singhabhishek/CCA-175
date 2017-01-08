@@ -26,6 +26,13 @@ run the same command again
 
 The records are inserted again
 
+mysql> select count(1) from retail_db.order_items_export;
++----------+
+| count(1) |
++----------+
+|   344396 |
++----------+
+1 row in set (2.34 sec)
 
 
 
