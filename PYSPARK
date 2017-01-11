@@ -369,8 +369,78 @@ fullOuterJoin
 
 ********************************************************************************************************************************
 ********************************************************************************************************************************
+JOINING DATASETS USING SQL
+==========================
+HiveContext:
+the tables should already be created in Hive
+
+from pyspark.sql import HiveContext
+sqlc = HiveContext(sc)
+sqlc.sql("set spark.sql.shuffle.partitions =10")
+sqlc.sql("select count(1) from sqoop.orders")
+
+cntord = sqlc.sql("select count(1) from sqoop.orders")
+68883
+cntorditm = sqlc.sql("select count(1) from sqoop.order_items")
+172198
+
+joinRDD = sqlc.sql("select a.order_date, count(distinct(a.order_id)), sum(b.order_item_subtotal) from sqoop.orders a join  \
+sqoop.order_items b on a.order_id = b.order_item_order_id group by a.order_date order by a.order_date")
+joinRDD.count ==> 364
+for i in joinRDD.take(10):
+      print(i)
+      
+Row(order_date=u'2013-07-25 00:00:00.0', _c1=116, _c2=68153.829999999987)
+Row(order_date=u'2013-07-26 00:00:00.0', _c1=233, _c2=136520.17000000025)
+Row(order_date=u'2013-07-27 00:00:00.0', _c1=175, _c2=101074.34000000008)
+Row(order_date=u'2013-07-28 00:00:00.0', _c1=158, _c2=87123.080000000075)
+Row(order_date=u'2013-07-29 00:00:00.0', _c1=216, _c2=137287.09000000026)
+Row(order_date=u'2013-07-30 00:00:00.0', _c1=182, _c2=102745.62000000011)
+Row(order_date=u'2013-07-31 00:00:00.0', _c1=209, _c2=131878.06000000011)
+Row(order_date=u'2013-08-01 00:00:00.0', _c1=212, _c2=129001.62000000027)
+Row(order_date=u'2013-08-02 00:00:00.0', _c1=186, _c2=109347.00000000003)
+Row(order_date=u'2013-08-03 00:00:00.0', _c1=159, _c2=95266.890000000145)
+
+SqlContext:
+==========
+
+from pyspark.sql import SQLContext, Row
+sqlc = SQLContext(sc)
+sqlc.sql("set spark.sql.shuffle.partitions=10")    (o/p: DataFrame[key: string, value: string])******
 
 
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+map1 = ordRDD.map(lambda a: a.split(","))
+orders = map1.map(lambda a: Row(order_id = int(a[0]), order_date = a[1], order_customer_id = int(a[2]), order_status = a[3]))
+ordersSchema = sqlc.inferSchema(orders)
+ordersSchema.registerTempTable("orders")
+
+orditRDD = sc.textFile("sqoop/sqoop-import/order_items")
+map2 = orditRDD.map(lambda a:a.split(","))
+order_items = map2.map(lambda a: Row(order_item_id = int(a[0]), order_item_order_id = int(a[1]), \
+order_item_product_id = int(a[2]), order_item_quantity = int(a[3]), order_item_subtotal = float(a[4]), \
+product_price = float(a[5])))
+ord_itmsSchema = sqlc.inferSchema(order_items)
+ord_itmsSchema.registerTempTable("order_items")
+
+joinRDD = sqlc.sql("select a.order_date, count(distinct(a.order_id)), sum(b.order_item_subtotal) from orders a join  \
+order_items b on a.order_id = b.order_item_order_id group by a.order_date order by a.order_date")
+
+for i in joinRDD.take(10):
+      print(i)     
+
+Row(order_date=u'2013-07-25 00:00:00.0', _c1=116, _c2=68153.829999999973)
+Row(order_date=u'2013-07-26 00:00:00.0', _c1=233, _c2=136520.1699999999)
+Row(order_date=u'2013-07-27 00:00:00.0', _c1=175, _c2=101074.33999999995)
+Row(order_date=u'2013-07-28 00:00:00.0', _c1=158, _c2=87123.079999999958)
+Row(order_date=u'2013-07-29 00:00:00.0', _c1=216, _c2=137287.08999999991)
+Row(order_date=u'2013-07-30 00:00:00.0', _c1=182, _c2=102745.61999999994)
+Row(order_date=u'2013-07-31 00:00:00.0', _c1=209, _c2=131878.05999999994)
+Row(order_date=u'2013-08-01 00:00:00.0', _c1=212, _c2=129001.61999999991)
+Row(order_date=u'2013-08-02 00:00:00.0', _c1=186, _c2=109346.99999999994)
+Row(order_date=u'2013-08-03 00:00:00.0', _c1=159, _c2=95266.889999999956)
+
+joinRDDcount --> 364
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
