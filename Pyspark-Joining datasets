@@ -22,13 +22,74 @@ mysql> describe retail_db.order_items;
 +--------------------------+------------+------+-----+---------+----------------+
 6 rows in set (0.00 sec)
 
-mysql> describe retail_db.customers;
+mysql> describe categories;
++------------------------+-------------+------+-----+---------+----------------+
+| Field                  | Type        | Null | Key | Default | Extra          |
++------------------------+-------------+------+-----+---------+----------------+
+| category_id            | int(11)     | NO   | PRI | NULL    | auto_increment |
+| category_department_id | int(11)     | NO   |     | NULL    |                |
+| category_name          | varchar(45) | NO   |     | NULL    |                |
++------------------------+-------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> describe customers;
++-------------------+--------------+------+-----+---------+----------------+
+| Field             | Type         | Null | Key | Default | Extra          |
++-------------------+--------------+------+-----+---------+----------------+
+| customer_id       | int(11)      | NO   | PRI | NULL    | auto_increment |
+| customer_fname    | varchar(45)  | NO   |     | NULL    |                |
+| customer_lname    | varchar(45)  | NO   |     | NULL    |                |
+| customer_email    | varchar(45)  | NO   |     | NULL    |                |
+| customer_password | varchar(45)  | NO   |     | NULL    |                |
+| customer_street   | varchar(255) | NO   |     | NULL    |                |
+| customer_city     | varchar(45)  | NO   |     | NULL    |                |
+| customer_state    | varchar(45)  | NO   |     | NULL    |                |
+| customer_zipcode  | varchar(45)  | NO   |     | NULL    |                |
++-------------------+--------------+------+-----+---------+----------------+
+9 rows in set (0.00 sec)
+
+mysql> describe departments;
++-----------------+-------------+------+-----+---------+----------------+
+| Field           | Type        | Null | Key | Default | Extra          |
++-----------------+-------------+------+-----+---------+----------------+
+| department_id   | int(11)     | NO   | PRI | NULL    | auto_increment |
+| department_name | varchar(45) | NO   |     | NULL    |                |
++-----------------+-------------+------+-----+---------+----------------+
+2 rows in set (0.00 sec)
+
+mysql> describe products;
++---------------------+--------------+------+-----+---------+----------------+
+| Field               | Type         | Null | Key | Default | Extra          |
++---------------------+--------------+------+-----+---------+----------------+
+| product_id          | int(11)      | NO   | PRI | NULL    | auto_increment |
+| product_category_id | int(11)      | NO   |     | NULL    |                |
+| product_name        | varchar(45)  | NO   |     | NULL    |                |
+| product_description | varchar(255) | NO   |     | NULL    |                |
+| product_price       | float        | NO   |     | NULL    |                |
+| product_image       | varchar(255) | NO   |     | NULL    |                |
++---------------------+--------------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
 
 
 Problem statement 1 : Get the customer who has spent maximum
 ===================
+mysql> select order_customer_id, sum(order_item_subtotal) from orders a, order_items b 
+where a.order_id = b.order_item_order_id group by order_customer_id order by order_item_subtotal desc limit 10;
+12331 rows
 
+ordersRDD = sc.textFile("sqoop/sqoop-import/orders")
+orderitemsRDD = sc.textFile("sqoop/sqoop-import/order_items")
+datsplt1 = ordersRDD.map(lambda a: (a.split(",")[0], a.split(",")[2]))
+datsplt2 = orderitemsRDD.map(lambda a: (a.split(",")[1], a.split(",")[4]))
+joinds = datsplt1.join(datsplt2)
+selfld = joinds.map(lambda a: (a[1][0],float(a[1][1])))
+sum = selfld.reduceByKey(lambda a,b: (a+b))
+finalds = sum.sortByKey(descending)  xxxxxxxx
 
 Problem statement 2 : Get the customer who has spent minimum
 
-Problem statement 3 : 
+Problem statement 3 : Get the top selling product on daily basis
+
+
+
