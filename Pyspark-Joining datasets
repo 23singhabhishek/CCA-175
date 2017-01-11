@@ -1,0 +1,34 @@
+mysql> describe retail_db.orders;
++-------------------+-------------+------+-----+---------+----------------+
+| Field             | Type        | Null | Key | Default | Extra          |
++-------------------+-------------+------+-----+---------+----------------+
+| order_id          | int(11)     | NO   | PRI | NULL    | auto_increment |
+| order_date        | datetime    | NO   |     | NULL    |                |
+| order_customer_id | int(11)     | NO   |     | NULL    |                |
+| order_status      | varchar(45) | NO   |     | NULL    |                |
++-------------------+-------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> describe retail_db.order_items;
++--------------------------+------------+------+-----+---------+----------------+
+| Field                    | Type       | Null | Key | Default | Extra          |
++--------------------------+------------+------+-----+---------+----------------+
+| order_item_id            | int(11)    | NO   | PRI | NULL    | auto_increment |
+| order_item_order_id      | int(11)    | NO   |     | NULL    |                |
+| order_item_product_id    | int(11)    | NO   |     | NULL    |                |
+| order_item_quantity      | tinyint(4) | NO   |     | NULL    |                |
+| order_item_subtotal      | float      | NO   |     | NULL    |                |
+| order_item_product_price | float      | NO   |     | NULL    |                |
++--------------------------+------------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
+mysql> describe retail_db.customers;
+
+
+Problem statement 1 : Get the customer who has spent maximum
+===================
+
+
+Problem statement 2 : Get the customer who has spent minimum
+
+Problem statement 3 : 
