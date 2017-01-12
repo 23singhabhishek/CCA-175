@@ -10,26 +10,32 @@ map1 = orderitemsRDD.map(lambda a: float(a.split(",")[4]))
 
 map1.reduce(lambda rev1, rev2: rev1+rev2)
 
+==> 34322619.930019915
 
 
 productsRDD = sc.textFile("sqoop/sqoop-import/products")
 prodmap = productsRDD.map(lambda rec:rec)
-prodmap.reduce(lambda rec1,rec2: (rec1 if(float(rec1.split(",")[4]) >= \
-float(rec2.split(',")[4]) else rec2))
-
+prodmap.reduce(lambda rec1,rec2: (rec1 if (float(rec1.split(",")[4]) >= \
+float(rec2.split(",")[4])) else rec2))
+==> 1999.99
 685 - products_id --> this record should be deleted
 
 
 orditmsRDD = sc.textFile("sqoop/sqoop-import/order_items")
 totrev = orditmsRDD.map(lambda rec: float(rec.split(",")[4])).reduce(lambda acc, val:acc + val)    acc --> accumulator, val --> value
 totrev (hit 'Enter')
+==> >>> totrev
+34322619.930019915
+
 
 totords = orditmsRDD.map(lambda rec: rec.split(",")[1]).distinct().count()
-
+==> 57431
 average rev
 
 totrev/totords
 
+>>> totrev/totords
+597.63228796329361
 =========================================================
 
 countByKey()
