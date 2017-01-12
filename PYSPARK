@@ -424,7 +424,9 @@ ord_itmsSchema = sqlc.inferSchema(order_items)
 ord_itmsSchema.registerTempTable("order_items")
 
 joinRDD = sqlc.sql("select a.order_date, count(distinct(a.order_id)), sum(b.order_item_subtotal) from orders a join  \
-order_items b on a.order_id = b.order_item_order_id group by a.order_date order by a.order_date")Check for float in Sql context
+order_items b on a.order_id = b.order_item_order_id group by a.order_date order by a.order_date")
+
+Check for float in Sql context
 for i in joinRDD.take(10):
       print(i)     
 
