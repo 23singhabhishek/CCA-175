@@ -1,1 +1,74 @@
 
+Get totdal count of records
+ordersRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordersRDD.count()
+
+Get the sum total of revenue
+orderitemsRDD = sc.textFile("sqoop/sqoop-import/order_items")
+map1 = orderitemsRDD.map(lambda a: float(a.split(",")[4]))
+
+
+map1.reduce(lambda rev1, rev2: rev1+rev2)
+
+
+
+productsRDD = sc.textFile("sqoop/sqoop-import/products")
+prodmap = productsRDD.map(lambda rec:rec)
+prodmap.reduce(lambda rec1,rec2: (rec1 if(float(rec1.split(",")[4]) >= \
+float(rec2.split(',")[4]) else rec2))
+
+685 - products_id --> this record should be deleted
+
+
+orditmsRDD = sc.textFile("sqoop/sqoop-import/order_items")
+totrev = orditmsRDD.map(lambda rec: float(rec.split(",")[4])).reduce(lambda acc, val:acc + val)    acc --> accumulator, val --> value
+totrev (hit 'Enter')
+
+totords = orditmsRDD.map(lambda rec: rec.split(",")[1]).distinct().count()
+
+average rev
+
+totrev/totords
+
+=========================================================
+
+countByKey()
+
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], 0))         (in place of zero, any number can be used. Even one can be used)
+ordmap.countByKey()
+
+the above output is a list
+for i in ordmap.countByKey().items():
+  print(i)
+ 
+if the items functions is not used then only the key is displayed. Using items gives the total number of records in the table for
+each order status.
+
+
+
+
+groupByKey() - i/p data for aggregation is very large and after aggregation the number of recs is more or less the same 
+              (does not use combiner)
+reduceBYKey() - i/p data for aggregation is very large and after aggregation the number of recs is small
+aggregateByKey()
+conbineByKey() - i/p data for aggregation is very large and after aggregation the number of recs is small
+
+groupByKey:
+
+ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], 1))
+ordbystat = ordmap.groupByKey().map(lambda rec: (rec[0], sum(rec[1])))
+
+
+reduceByKey(): takes 2 parameters accumulator and value
+
+ordbystat = ordmap.reduceByKey(lambda acc, val: acc+val)
+
+
+aggregateByKey(): 
+ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], rec))
+
+
+
+ 
+ 
