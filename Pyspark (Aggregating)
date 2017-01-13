@@ -1,17 +1,21 @@
 
 Get total count of records
+==================================================
 ordersRDD = sc.textFile("sqoop/sqoop-import/orders")
 ordersRDD.count()
 
 Get the sum total of revenue
+==================================================
 orderitemsRDD = sc.textFile("sqoop/sqoop-import/order_items")
 map1 = orderitemsRDD.map(lambda a: float(a.split(",")[4]))
-
 
 map1.reduce(lambda rev1, rev2: rev1+rev2)
 
 ==> 34322619.930019915
 
+
+Get the record details for the product with maximum product_price
+============================================================
 
 productsRDD = sc.textFile("sqoop/sqoop-import/products")
 prodmap = productsRDD.map(lambda rec:rec)
@@ -20,26 +24,44 @@ float(rec2.split(",")[4])) else rec2))
 ==> 1999.99
 685 - products_id --> this record should be deleted
 
+Get the record details for the product with minimum product_price
+==================================================
+prodmap.reduce(lambda rec1, rec2: (rec1 if(float(rec1.split(",")[4]) <= float(rec2.split(",")[4])) else rec2))
 
+**** How to fetch all records if there are multiple records with the minimum product_price
+====================================================================================================
+prodmap = productsRDD.map(lambda rec:rec)
+prodprice = prodmap.map(lambda a:float(a.split(",")[4]))
+minprice = prodprice.reduce(lambda rec1, rec2: (rec1 if(rec1 <= rec2) else rec2))
+
+prodmap.reduce(lambda a: (a if(float(a.split(",")[4]) == minprice))) ****************
+
+
+get the total revenue
+==================================================
 orditmsRDD = sc.textFile("sqoop/sqoop-import/order_items")
 totrev = orditmsRDD.map(lambda rec: float(rec.split(",")[4])).reduce(lambda acc, val:acc + val)    acc --> accumulator, val --> value
 totrev (hit 'Enter')
 ==> >>> totrev
 34322619.930019915
 
-
+get the total distinct orders
+==================================================
 totords = orditmsRDD.map(lambda rec: rec.split(",")[1]).distinct().count()
 ==> 57431
 average rev
 
+average rev per order:
+==================================================
 totrev/totords
 
 >>> totrev/totords
 597.63228796329361
 =========================================================
 
-countByKey()
 
+countByKey()
+==================================================
 ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], 0))         (in place of zero, any number can be used. Even one can be used)
 ordmap.countByKey()
@@ -61,17 +83,18 @@ aggregateByKey()
 conbineByKey() - i/p data for aggregation is very large and after aggregation the number of recs is small
 
 groupByKey:
-
+should be followed by map
 ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], 1))
 ordbystat = ordmap.groupByKey().map(lambda rec: (rec[0], sum(rec[1])))
 
 
-reduceByKey(): takes 2 parameters accumulator and value
+reduceByKey(): takes 2 parameters accumulator and value. aggregation like counting the sum is simpler here compared to 
+groupByKey(). It also uses combiner. It uses 1 parameter (tuple of acc & val)
 
 ordbystat = ordmap.reduceByKey(lambda acc, val: acc+val)
 
 
-aggregateByKey(): 
+aggregateByKey(): takes 2 parameters
 ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], rec))
 
 
