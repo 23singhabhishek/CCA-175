@@ -85,6 +85,9 @@ datsplt2 = orderitemsRDD.map(lambda a: (a.split(",")[1], a.split(",")[4]))
 joinds = datsplt1.join(datsplt2)
 selfld = joinds.map(lambda a: (a[1][0],float(a[1][1])))
 sum = selfld.reduceByKey(lambda a,b: (a+b))
+
+#custmax = sum.reduce(lambda a, b: a (if 
+
 finalds = sum.sortByKey(descending)  xxxxxxxx
 
 Problem statement 2 : Get the customer who has spent minimum
