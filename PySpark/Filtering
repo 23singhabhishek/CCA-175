@@ -26,12 +26,30 @@ for i in ordRDD.filter(lambda a:'END' in a.split(",")[3]).take(150):print(i)
 
 
 7. Get the list of cancelled orders with amount greater than 1000$
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+
 orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
 
 ordf = ordRDD.filter(lambda a: a.split(",")[3] == 'CANCELED')
 
 ordmap = ordf.map(lambda a: (a.split(",")[0] , a.split(",")[3]))
 orditmap = orditmRDD.map(lambda a: (a.split(",")[1], float(a.split(",")[4])))
+
+################################################################################
+orditmap = orditmRDD.map(lambda a: (int(a.split(",")[1]), float(a.split(",")[4])))
+ordm1 = ordmap.map(lambda a: (a[0]))
+orditred = orditmap.reduceByKey(lambda a,b: a+b)
+orditrf = orditred.filter(lambda a: a[1] >= 1000.00)
+join =orditrf.join(ordm1) ==> unable to display the contents **** 
+
+ordm1.saveAsTextFile("pyspark/ordm1")
+orditrf.saveAsTextFile("pyspark/orditrf")
+################################################################################
+##ordm1.count() ==> 1428
+##orditred.count() ==> 57431
+##orditmap.count() ==> 172198
+##ordifrf.count() ==> 7519
+
 
 join = orditmap.join(ordmap)
 
@@ -51,6 +69,8 @@ calrev = joinm.reduceByKey(lambda a,b: a + b )
 ((u'1598', u'CANCELED'), 449.99000000000001)
 ((u'57479', u'CANCELED'), 1219.8500000000001)
 
-calrf = calrev.filter(lambda a: (a.split(",")[1] >= 1000.00 ))
+calrf = calrev.filter(lambda a: a[1] >= 1000.00 )
 
 #calrev = join.aggregateByKey((0,0), lambda a,b:  )
+
+
