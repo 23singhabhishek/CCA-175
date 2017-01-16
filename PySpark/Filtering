@@ -26,3 +26,31 @@ for i in ordRDD.filter(lambda a:'END' in a.split(",")[3]).take(150):print(i)
 
 
 7. Get the list of cancelled orders with amount greater than 1000$
+orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+
+ordf = ordRDD.filter(lambda a: a.split(",")[3] == 'CANCELED')
+
+ordmap = ordf.map(lambda a: (a.split(",")[0] , a.split(",")[3]))
+orditmap = orditmRDD.map(lambda a: (a.split(",")[1], float(a.split(",")[4])))
+
+join = orditmap.join(ordmap)
+
+(u'61952', (299.98000000000002, u'CANCELED'))
+(u'61952', (399.98000000000002, u'CANCELED'))
+(u'61952', (200.0, u'CANCELED'))
+(u'44647', (199.99000000000001, u'CANCELED'))
+
+joinm = join.map(lambda a: ((a[0], a[1][1]), a[1][0]))
+((u'61952', u'CANCELED'), 299.98000000000002)
+((u'61952', u'CANCELED'), 399.98000000000002)
+((u'61952', u'CANCELED'), 200.0)
+((u'44647', u'CANCELED'), 199.99000000000001)
+
+calrev = joinm.reduceByKey(lambda a,b: a + b )
+((u'59507', u'CANCELED'), 199.99000000000001)
+((u'1598', u'CANCELED'), 449.99000000000001)
+((u'57479', u'CANCELED'), 1219.8500000000001)
+
+calrf = calrev.filter(lambda a: (a.split(",")[1] >= 1000.00 ))
+
+#calrev = join.aggregateByKey((0,0), lambda a,b:  )
