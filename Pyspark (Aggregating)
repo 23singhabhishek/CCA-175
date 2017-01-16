@@ -405,3 +405,63 @@ for i in avgrev.sortByKey().take(10): print(i)
 
 
 
+4. Get customer_id with max revenue for each day
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+
+ordmap = ordRDD.map(lambda a: (a.split(",")[0] , a))
+ordimap = orditmRDD.map(lambda a: (a.split(",")[1], a))
+join =  ordimap.join(ordmap)
+(u'35236', (u'87999,35236,365,1,59.99,59.99', u'35236,2014-02-27 00:00:00.0,3987,PENDING'))
+(u'35236', (u'88000,35236,191,1,99.99,99.99', u'35236,2014-02-27 00:00:00.0,3987,PENDING'))
+
+jmap = join.map(lambda a: ((a[1][1].split(",")[1], a[1][1].split(",")[2]), float(a[1][0].split(",")[4])))
+
+((u'2014-02-27 00:00:00.0', u'3987'), u'59.99')
+((u'2014-02-27 00:00:00.0', u'3987'), u'99.99')
+
+revpdpc = jmap.reduceByKey(lambda acc, val: acc+val)
+
+((u'2014-02-22 00:00:00.0', u'7155'), 399.98000000000002)
+((u'2013-10-21 00:00:00.0', u'11284'), 1364.8900000000001)
+
+Now, in the above transformation, the key is (order_Date and customer_id) while the value is item_subtotal. To find the cust-id
+wit max revenue for each day, we have to make order_Date as the key and rest of the parameters as value.
+revmap = revpdpc.map(lambda a: (a[0][0] , (a[0][1], a[1])))
+(u'2014-02-22 00:00:00.0', (u'7155', 399.98000000000002))
+(u'2013-10-21 00:00:00.0', (u'11284', 1364.8900000000001))
+revmap.count() ==> 57047
+
+maxrev = revmap.reduceByKey(lambda x,y : (x if x[1] >= y[1] else y))
+x[0] --> customer id
+x[1] --> revenue
+
+maxrev.count()  ==> 364 rows
+(u'2013-07-25 00:00:00.0', (u'11941', 1649.8000000000002))
+(u'2013-07-26 00:00:00.0', (u'32', 2009.75))
+(u'2013-07-27 00:00:00.0', (u'11491', 1379.8800000000001))
+(u'2013-07-28 00:00:00.0', (u'5738', 1499.8700000000001))
+
+The above logic gives the list of one customer per day with max rev. if there are multiple customers with the same value for rev
+then the logic needs to be changed. ******
+
+def findMax(x,y):
+  if (x[1] >= y[1]):
+    return x
+  else:
+    return y
+    
+maxrevf = revmap.reduceByKey(lambda a,b: findMax(a,b))
+maxrevf.count() ==> 364 rows
+
+for i in maxrevf.sortByKey().take(10):print(i)
+(u'2013-07-25 00:00:00.0', (u'11941', 1649.8000000000002))
+(u'2013-07-26 00:00:00.0', (u'32', 2009.75))
+(u'2013-07-27 00:00:00.0', (u'11491', 1379.8800000000001))
+(u'2013-07-28 00:00:00.0', (u'5738', 1499.8700000000001))
+
+
+
+============
+
+
