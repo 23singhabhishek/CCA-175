@@ -1,1 +1,10 @@
 
+Data can be filtered before/after the map function.
+
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+
+filt = ordRDD.filter(lambda a: a.split(",")[3] == "SUSPECTED_FRAUD")
+for i in filt.collect():print(i)        ==> gives the list of orders with order_status == "SUSPECTED_FRAUD
+
+for i in ordRDD.filter(lambda a: a.split(",")[3] == "SUSPECTED_FRAUD").collect():print(i)
+
