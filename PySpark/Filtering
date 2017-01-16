@@ -3,8 +3,26 @@ Data can be filtered before/after the map function.
 
 ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 
+1. Get the list of orders with order_Status as SUSPECTED_FRAUD.
+
 filt = ordRDD.filter(lambda a: a.split(",")[3] == "SUSPECTED_FRAUD")
 for i in filt.collect():print(i)        ==> gives the list of orders with order_status == "SUSPECTED_FRAUD
 
 for i in ordRDD.filter(lambda a: a.split(",")[3] == "SUSPECTED_FRAUD").collect():print(i)
 
+2. Get all orders with the word 'END' in its status
+
+for i in ordRDD.filter(lambda a:'END' in a.split(",")[3]).take(150):print(i)
+
+3. Get the list of orders whose order_id > 100
+
+
+4. Get the list of orders with order_id > 100 or order stat is in 'PENDING' status
+
+5. Get the list of orders with order_id > 1000 and has got the word 'PENDING' in ord-stat or the order is 'CANCELED'
+
+
+6. Get the list of orders whose ord-id > 1000 and order-stat is not comlete
+
+
+7. Get the list of cancelled orders with amount greater than 1000$
