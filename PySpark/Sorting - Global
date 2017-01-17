@@ -1,0 +1,82 @@
+
+prdRDD = sc.textFile("sqoop/sqoop-import/products")
+prdRDDf = prdRDD.filter(lambda a: int(a.split(",")[0]) != 685)
+
+Sort in ascending order :
+*************************
+for i in prdRDDf.map(lambda a: (float(a.split(",")[4]), a)).sortByKey().take(10):print(i)
+
+
+Sort in descending order:
+*************************
+for i in prdRDDf.map(lambda a: (float(a.split(",")[4]), a)).sortByKey(False).take(10):print(i)
+
+
+Secondary sort: Sort based on two keys. In the below example, the dataset is sorted based on price and then on product ID. The
+*************************************
+sort order is taken as descending for both the keys
+for i in prdRDDf.map(lambda a: ((float(a.split(",")[4]), int(a.split(",")[0])),  a)).sortByKey(False).take(10):print(i)
+
+
+Display only the values:
+***********************
+for i in prdRDDf.map(lambda a: ((float(a.split(",")[4]), int(a.split(",")[0])),  a)).sortByKey(False).map(lambda a: a[1]).
+take(10):print(i)
+
+
+List the 10 records (sort order: desc): the optiosn top() internally sorts the data (sortByKey() + take())
+*************************************
+for i in prdRDDf.map(lambda a: (float(a.split(",")[4]), a)).top(10):print(i)
+
+
+take Ordered(): 
+*************
+lists key1 in desc and key2 in asc
+for i in prdRDDf.map(lambda a: ((float(a.split(",")[4]), int(a.split(",")[0])),  a)).takeOrdered(10, lambda a: (-a[0][0],
+a[0][1])):print(i)
+
+for i in prdRDDf.map(lambda a: ((float(a.split(",")[4]), int(a.split(",")[0])),  a)).takeOrdered(10, lambda a: (a[0][0],
+-a[0][1])):print(i)
+
+
+more....
+
+
+
+orders = sc.textFile("/user/cloudera/sqoop_import/orders")
+for i in orders.
+map(lambda rec: (int(rec.split(",")[0]), rec)).
+sortByKey().
+collect():
+ print(i)
+
+for i in orders.
+map(lambda rec: (int(rec.split(",")[0]), rec)).
+sortByKey(False).
+take(5):
+ print(i)
+
+for i in orders.
+map(lambda rec: (int(rec.split(",")[0]), rec)).
+top(5):
+ print(i)
+ 
+ orders = sc.textFile("/user/cloudera/sqoop_import/orders")
+
+for i in orders.
+map(lambda rec: (int(rec.split(",")[0]), rec)).
+takeOrdered(5, lambda x: x[0]):
+ print(i)
+
+for i in orders.
+map(lambda rec: (int(rec.split(",")[0]), rec)).
+takeOrdered(5, lambda x: -x[0]):
+ print(i)
+
+for i in orders.
+takeOrdered(5, lambda x: int(x.split(",")[0])):
+ print(i)
+
+for i in orders.
+takeOrdered(5, lambda x: -int(x.split(",")[0])):
+ print(i)
