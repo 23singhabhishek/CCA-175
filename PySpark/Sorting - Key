@@ -1,0 +1,36 @@
+
+
+prdRDD = sc.textFile("sqoop/sqoop-import/products")
+prdf = prdRDD.filter(lambda a: (int(a.split(",")[0]) != 685))
+prdmap = prdf.map(lambda a: (int(a.split(",")[1]), float(a.split(",")[4])))
+prdmg = prdmp.groupByKey().map(lambda a: (a[0], sum(a[1])))
+(55, 755.96000000000004)
+(39, 1834.7600000000002)
+(27, 1059.95)
+(31, 6174.819999999997)
+
+====================================================================================================
+find the 
+prdmg = prdmap.groupByKey().map(lambda a: (a[0], sum(float(a[1].split(",")[4]))))    (didnt work)*****
+====================================================================================================
+
+prdmg = prdmap.groupByKey()
+(55, <pyspark.resultiterable.ResultIterable object at 0xd5f57d0>)
+(39, <pyspark.resultiterable.ResultIterable object at 0xd5f5b10>)
+(27, <pyspark.resultiterable.ResultIterable object at 0xd5f5b90>)
+(31, <pyspark.resultiterable.ResultIterable object at 0xd5f5b50>)
+
+List by prod-cat-id
+
+prdRDD = sc.textFile("sqoop/sqoop-import/products")
+prdmap = prdRDD.map(lambda a: (a.split(",")[1],a))
+prdgrp = prdmap.groupByKey()
+for i in prdgrp.collect():print()
+(u'49', <pyspark.resultiterable.ResultIterable object at 0x12d6a10>)
+(u'6', <pyspark.resultiterable.ResultIterable object at 0x12d6a50>)
+(u'38', <pyspark.resultiterable.ResultIterable object at 0x12d6a90>)
+(u'34', <pyspark.resultiterable.ResultIterable object at 0x12d6ad0>)
+
+prdgrp1 = prdmap.groupByKey.map(lambda a: (a[0], list(a[1])))
+(u'34', [u'741,34,FootJoy GreenJoys Golf Shoes,,59.99,http://images.acmesports.sports/FootJoy+GreenJoys+Golf+Shoes', u'742,34,FootJoy GreenJoys Golf Shoes,,59.99,http://images.acmesports.sports/FootJoy+GreenJoys+Golf+Shoes', u'743,34,Ogio Race Golf Shoes,,169.99,http://images.acmesports.sports/Ogio+Race+Golf+Shoes', u'744,34,Ogio Race Golf Shoes,,169.99,http://images.acmesports.sports/Ogio+Race+Golf+Shoes', u'745,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes', u'746,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes', u'747,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes', u'748,34,Ogio City Turf Golf Shoes,,129.99,http://images.acmesports.sports/Ogio+City+Turf+Golf+Shoes', u'749,34,Ogio City Turf Golf Shoes,,129.99,http://images.acmesports.sports/Ogio+City+Turf+Golf+Shoes', u'750,34,Ogio City Turf Golf Shoes,,129.99,http://images.acmesports.sports/Ogio+City+Turf+Golf+Shoes', u'751,34,Ogio Sport Golf Shoes,,99.99,http://images.acmesports.sports/Ogio+Sport+Golf+Shoes', u'752,34,Ogio Sport Golf Shoes,,99.99,http://images.acmesports.sports/Ogio+Sport+Golf+Shoes', u'753,34,Ogio Sport Golf Shoes,,99.99,http://images.acmesports.sports/Ogio+Sport+Golf+Shoes', u'754,34,TRUE linkswear Lyt Dry Golf Shoes,,149.99,http://images.acmesports.sports/TRUE+linkswear+Lyt+Dry+Golf+Shoes', u'755,34,TRUE linkswear Lyt Dry Golf Shoes,,149.99,http://images.acmesports.sports/TRUE+linkswear+Lyt+Dry+Golf+Shoes', u'756,34,TRUE linkswear Lyt Dry Golf Shoes,,149.99,http://images.acmesports.sports/TRUE+linkswear+Lyt+Dry+Golf+Shoes', u'757,34,TRUE linkswear Vegas Golf Shoes,,99.99,http://images.acmesports.sports/TRUE+linkswear+Vegas+Golf+Shoes', u'758,34,TRUE linkswear Vegas Golf Shoes,,99.99,http://images.acmesports.sports/TRUE+linkswear+Vegas+Golf+Shoes', u'759,34,Nike Lunarwaverly Golf Shoes,,139.99,http://images.acmesports.sports/Nike+Lunarwaverly+Golf+Shoes', u'760,34,Nike Lunarwaverly Golf Shoes,,139.99,http://images.acmesports.sports/Nike+Lunarwaverly+Golf+Shoes', u'761,34,Nike Lunarwaverly Golf Shoes,,139.99,http://images.acmesports.sports/Nike+Lunarwaverly+Golf+Shoes', u'762,34,Nike Lunarwaverly Golf Shoes,,139.99,http://images.acmesports.sports/Nike+Lunarwaverly+Golf+Shoes', u'763,34,PING Golf Shoe Bag,,34.99,http://images.acmesports.sports/PING+Golf+Shoe+Bag', u'764,34,Nike Lunar Mount Royal Golf Shoes,,99.99,http://images.acmesports.sports/Nike+Lunar+Mount+Royal+Golf+Shoes'])
+
