@@ -34,3 +34,170 @@ for i in prdgrp.collect():print()
 prdgrp1 = prdmap.groupByKey.map(lambda a: (a[0], list(a[1])))
 (u'34', [u'741,34,FootJoy GreenJoys Golf Shoes,,59.99,http://images.acmesports.sports/FootJoy+GreenJoys+Golf+Shoes', u'742,34,FootJoy GreenJoys Golf Shoes,,59.99,http://images.acmesports.sports/FootJoy+GreenJoys+Golf+Shoes', u'743,34,Ogio Race Golf Shoes,,169.99,http://images.acmesports.sports/Ogio+Race+Golf+Shoes', u'744,34,Ogio Race Golf Shoes,,169.99,http://images.acmesports.sports/Ogio+Race+Golf+Shoes', u'745,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes', u'746,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes', u'747,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes', u'748,34,Ogio City Turf Golf Shoes,,129.99,http://images.acmesports.sports/Ogio+City+Turf+Golf+Shoes', u'749,34,Ogio City Turf Golf Shoes,,129.99,http://images.acmesports.sports/Ogio+City+Turf+Golf+Shoes', u'750,34,Ogio City Turf Golf Shoes,,129.99,http://images.acmesports.sports/Ogio+City+Turf+Golf+Shoes', u'751,34,Ogio Sport Golf Shoes,,99.99,http://images.acmesports.sports/Ogio+Sport+Golf+Shoes', u'752,34,Ogio Sport Golf Shoes,,99.99,http://images.acmesports.sports/Ogio+Sport+Golf+Shoes', u'753,34,Ogio Sport Golf Shoes,,99.99,http://images.acmesports.sports/Ogio+Sport+Golf+Shoes', u'754,34,TRUE linkswear Lyt Dry Golf Shoes,,149.99,http://images.acmesports.sports/TRUE+linkswear+Lyt+Dry+Golf+Shoes', u'755,34,TRUE linkswear Lyt Dry Golf Shoes,,149.99,http://images.acmesports.sports/TRUE+linkswear+Lyt+Dry+Golf+Shoes', u'756,34,TRUE linkswear Lyt Dry Golf Shoes,,149.99,http://images.acmesports.sports/TRUE+linkswear+Lyt+Dry+Golf+Shoes', u'757,34,TRUE linkswear Vegas Golf Shoes,,99.99,http://images.acmesports.sports/TRUE+linkswear+Vegas+Golf+Shoes', u'758,34,TRUE linkswear Vegas Golf Shoes,,99.99,http://images.acmesports.sports/TRUE+linkswear+Vegas+Golf+Shoes', u'759,34,Nike Lunarwaverly Golf Shoes,,139.99,http://images.acmesports.sports/Nike+Lunarwaverly+Golf+Shoes', u'760,34,Nike Lunarwaverly Golf Shoes,,139.99,http://images.acmesports.sports/Nike+Lunarwaverly+Golf+Shoes', u'761,34,Nike Lunarwaverly Golf Shoes,,139.99,http://images.acmesports.sports/Nike+Lunarwaverly+Golf+Shoes', u'762,34,Nike Lunarwaverly Golf Shoes,,139.99,http://images.acmesports.sports/Nike+Lunarwaverly+Golf+Shoes', u'763,34,PING Golf Shoe Bag,,34.99,http://images.acmesports.sports/PING+Golf+Shoe+Bag', u'764,34,Nike Lunar Mount Royal Golf Shoes,,99.99,http://images.acmesports.sports/Nike+Lunar+Mount+Royal+Golf+Shoes'])
 
+===================================================================================================================================
+
+Define a list
+a = [1,2,4,3,5,2,14,7,0,4,14,20,9,5]
+
+Length: ==> 14
+len(a)
+
+Sort the list: ==> [0, 1, 2, 2, 3, 4, 4, 5, 5, 7, 9, 14, 14, 20]
+sorted(a)
+
+Sort the list in descending order: ==> [20, 14, 14, 9, 7, 5, 5, 4, 4, 3, 2, 2, 1, 0]
+sorted(a, reverse=True)
+
+Eliminate duplicates: ==> set([0, 1, 2, 3, 4, 5, 7, 9, 14, 20])
+set(a)
+
+List n elements: a = [1,2,4,3,5,2,14,7,0,4,14,20,9,5]
+itertools.islice(l,pos1,posn)  ==> pos1, posn should be non negative integers
+import itertools
+list(itertools.islice(a,0,3))
+[1,2,4,3]
+
+>>> for i in itertools.islice(a,0,4):print(i)
+... 
+1
+2
+4
+3
+
+>>> list(itertools.islice(a,4,3))
+[]
+>>> list(itertools.islice(a,4,10))
+[5, 2, 14, 7, 0, 4]
+>>> list(itertools.islice(a,4,15))
+[5, 2, 14, 7, 0, 4, 14, 20, 9, 5]
+>>> list(itertools.islice(a,4,19))
+[5, 2, 14, 7, 0, 4, 14, 20, 9, 5]
+>>> list(itertools.islice(a,4,0))
+[]
+>>> list(itertools.islice(a,19,0))
+[]
+>>> list(itertools.islice(a,19,2))
+[]
+>>> list(itertools.islice(a,19))
+[1, 2, 4, 3, 5, 2, 14, 7, 0, 4, 14, 20, 9, 5]
+>>> list(itertools.islice(a,4))
+[1, 2, 4, 3]
+>>> list(itertools.islice(a,0))
+[]
+
+Get the top 6 records from the list
+list(itertools.islice((sorted(set(a),reverse=True)),5))
+[20, 14, 9, 7, 5]
+
+list(itertools.islice((sorted(set(a),reverse=True)),0,5))
+[20, 14, 9, 7, 5]
+===================================================================================================================================
+Get top n products by price by category
+1. Get top n priced products by category
+
+
+prdRDD = sc.textFile("sqoop/sqoop-import/products")
+prdRDDf = prdRDD.filter(lambda a: (int(a.split(",")[0]) != 685))
+for i in prdRDDf.map(lambda a: ((float(a.split(",")[4]), int(a.split(",")[0])),  a)).takeOrdered(10, lambda a: (-a[0][0],
+a[0][1])):print(i)
+
+the above statement lists all the top products by price including the duplicates
+
+
+prdRDD = sc.textFile("sqoop/sqoop-import/products")
+prdRDDf = prdRDD.filter(lambda a: (int(a.split(",")[0]) != 685))
+prdfmp =  prdRDDf.map(lambda a: (a.split(",")[1],a))
+grp1 = prdfmp.groupByKey()
+
+==>
+(u'11', <pyspark.resultiterable.ResultIterable object at 0x12dd710>)
+(u'24', <pyspark.resultiterable.ResultIterable object at 0x12e4d10>)
+
+
+grp1 = prdfmp.groupByKey().map(lambda a: (a[0], list(a[1])))
+
+==>
+(u'11', [u'217,11,Fitness Gear 300 lb Olympic Weight Set,,209.99,http://images.acmesports.sports/Fitness+Gear+300+lb+Olympic+Weight+Set', u'218,11,Elevation Training Mask 2.0,,79.99,http://images.acmesports.sports/Elevation+Training+Mask+2.0', u'219,11,Fitness Gear Pro Utility Bench,,179.99,http://images.acmesports.sports/Fitness+Gear+Pro+Utility+Bench', u'220,11,Teeter Hang Ups NXT-S Inversion Table,,299.99,http://images.acmesports.sports/Teeter+Hang+Ups+NXT-S+Inversion+Table', u'221,11,Fitness Gear Pro Olympic Bench,,249.99,http://images.acmesports.sports/Fitness+Gear+Pro+Olympic+Bench', u'222,11,Fitness Gear Pro Half Rack,,349.99,http://images.acmesports.sports/Fitness+Gear+Pro+Half+Rack', u'223,11,Teeter Hang-Ups EP-970 Limited Inversion Tabl,,399.99,http://images.acmesports.sports/Teeter+Hang-Ups+EP-970+Limited+Inversion+Table', u'224,11,PowerBlock Classic 50 lb Adjustable Dumbbell ,,299.99,http://images.acmesports.sports/PowerBlock+Classic+50+lb+Adjustable+Dumbbell+Set', u'225,11,Marcy Pro Circuit Trainer,,499.99,http://images.acmesports.sports/Marcy+Pro+Circuit+Trainer', u'226,11,Bowflex SelectTech 1090 Dumbbells,,599.99,http://images.acmesports.sports/Bowflex+SelectTech+1090+Dumbbells', u"227,11,Reebok Men's CrossFit Nano 3.0 Training Shoe,,109.99,http://images.acmesports.sports/Reebok+Men%27s+CrossFit+Nano+3.0+Training+Shoe", u'228,11,Fitness Gear Olympic Bench,,199.99,http://images.acmesports.sports/Fitness+Gear+Olympic+Bench', u'229,11,Marcy Diamond 9010 Smith Cage,,799.99,http://images.acmesports.sports/Marcy+Diamond+9010+Smith+Cage', u'230,11,BOSU Balance Trainer,,119.99,http://images.acmesports.sports/BOSU+Balance+Trainer', u"231,11,Nike Men's Romaleos 2 Weightlifting Shoe,,199.99,http://images.acmesports.sports/Nike+Men%27s+Romaleos+2+Weightlifting+Shoe", u"232,11,adidas Men's Powerlift 2 Training Shoe,,89.99,http://images.acmesports.sports/adidas+Men%27s+Powerlift+2+Training+Shoe", u'233,11,Core Fitness 5 - 50 lb Adjustable Dumbbells -,,399.99,http://images.acmesports.sports/Core+Fitness+5+-+50+lb+Adjustable+Dumbbells+-+Pair', u'234,11,Fitness Gear Pro Core Bench,,129.99,http://images.acmesports.sports/Fitness+Gear+Pro+Core+Bench', u'235,11,Under Armour Hustle Storm Medium Duffle Bag,,34.99,http://images.acmesports.sports/Under+Armour+Hustle+Storm+Medium+Duffle+Bag', u'236,11,PowerBlock 24 lb Adjustable Dumbbell Set,,159.99,http://images.acmesports.sports/PowerBlock+24+lb+Adjustable+Dumbbell+Set', u"237,11,Fitness Gear 7' Olympic Bar,,79.99,http://images.acmesports.sports/Fitness+Gear+7%27+Olympic+Bar", u'238,11,Fitness Gear Heavy Bag Stand,,99.99,http://images.acmesports.sports/Fitness+Gear+Heavy+Bag+Stand', u"239,11,Reebok Women's CrossFit Nano 2.0 Training Sho,,109.99,http://images.acmesports.sports/Reebok+Women%27s+CrossFit+Nano+2.0+Training+Shoe", u'240,11,Stamina Air Rower,,299.99,http://images.acmesports.sports/Stamina+Air+Rower'])
+(u'24', [u"501,24,Nike Men's USA White Home Stadium Soccer Jers,,90.0,http://images.acmesports.sports/Nike+Men%27s+USA+White+Home+Stadium+Soccer+Jersey", u"502,24,Nike Men's Dri-FIT Victory Golf Polo,,50.0,http://images.acmesports.sports/Nike+Men%27s+Dri-FIT+Victory+Golf+Polo", u'503,24,Nike Youth USA Away Stadium Replica Soccer Je,,75.0,http://images.acmesports.sports/Nike+Youth+USA+Away+Stadium+Replica+Soccer+Jersey', u'504,24,adidas Brazuca 2014 Top Glider Soccer Ball,,29.99,http://images.acmesports.sports/adidas+Brazuca+2014+Top+Glider+Soccer+Ball', u"505,24,Nike Men's USA Away Stadium Replica Soccer Je,,90.0,http://images.acmesports.sports/Nike+Men%27s+USA+Away+Stadium+Replica+Soccer+Jersey", u"506,24,adidas Men's Germany Home Soccer Jersey,,90.0,http://images.acmesports.sports/adidas+Men%27s+Germany+Home+Soccer+Jersey", u'507,24,Nike+ Fuelband SE,,99.0,http://images.acmesports.sports/Nike%2B+Fuelband+SE', u"508,24,PUMA Men's evoPOWER 1 Tricks FG Soccer Cleat,,189.99,http://images.acmesports.sports/PUMA+Men%27s+evoPOWER+1+Tricks+FG+Soccer+Cleat", u'509,24,adidas Brazuca 2014 Top Repliqu\xe9 Soccer Ball,,39.99,http://images.acmesports.sports/adidas+Brazuca+2014+Top+Repliqu%C3%A9+Soccer+Ball', u'510,24,Fitbit Flex Wireless Activity & Sleep Wristba,,99.95,http://images.acmesports.sports/Fitbit+Flex+Wireless+Activity+%26+Sleep+Wristband', u'511,24,Nike Women\'s Pro Core 3" Compression Shorts,,28.0,http://images.acmesports.sports/Nike+Women%27s+Pro+Core+3%22+Compression+Shorts', u"512,24,Nike Men's Flat Front Tech Golf Shorts,,65.0,http://images.acmesports.sports/Nike+Men%27s+Flat+Front+Tech+Golf+Shorts", u'513,24,adidas Brazuca 2014 Official Match Ball,,159.99,http://images.acmesports.sports/adidas+Brazuca+2014+Official+Match+Ball', u"514,24,adidas Men's Germany Black/Red Away Match Soc,,90.0,http://images.acmesports.sports/adidas+Men%27s+Germany+Black%2FRed+Away+Match+Soccer+Jersey", u"515,24,adidas Kids' F5 Messi FG Soccer Cleat,,34.99,http://images.acmesports.sports/adidas+Kids%27+F5+Messi+FG+Soccer+Cleat", u'516,24,Callaway X Hot Laser Rangefinder,,229.99,http://images.acmesports.sports/Callaway+X+Hot+Laser+Rangefinder', u"517,24,Nike Men's Hypervenom Phantom Premium FG Socc,,0.0,http://images.acmesports.sports/Nike+Men%27s+Hypervenom+Phantom+Premium+FG+Soccer+Cleat", u"518,24,Nike Women's Pro Victory Compression Bra,,21.99,http://images.acmesports.sports/Nike+Women%27s+Pro+Victory+Compression+Bra", u"519,24,adidas Men's Mexico Home Soccer Jersey,,90.0,http://images.acmesports.sports/adidas+Men%27s+Mexico+Home+Soccer+Jersey", u"520,24,adidas Men's Ultimate Short Sleeve Shirt,,22.0,http://images.acmesports.sports/adidas+Men%27s+Ultimate+Short+Sleeve+Shirt", u"521,24,Nike Men's Dri-FIT Flat Front Tech Golf Pants,,80.0,http://images.acmesports.sports/Nike+Men%27s+Dri-FIT+Flat+Front+Tech+Golf+Pants", u"522,24,Reebok Men's Full Zip Training Jacket,,29.97,http://images.acmesports.sports/Reebok+Men%27s+Full+Zip+Training+Jacket", u"523,24,adidas Kids' F10 Messi TRX FG Soccer Cleat,,44.99,http://images.acmesports.sports/adidas+Kids%27+F10+Messi+TRX+FG+Soccer+Cleat", u"524,24,adidas Men's F10 Messi TRX FG Soccer Cleat,,59.99,http://images.acmesports.sports/adidas+Men%27s+F10+Messi+TRX+FG+Soccer+Cleat"])
+
+
+
+Flatten the list
+sort the value
+grp2 = prdfmp.groupByKey().flatMap(lambda a: sorted(a[1]))
+
+for i in prdfmp.groupByKey().flatMap(lambda a: sorted(a[1])).take(50):print(i)
+
+the data is sorted based on value. The key here is category-id
+523,24,adidas Kids' F10 Messi TRX FG Soccer Cleat,,44.99,http://images.acmesports.sports/adidas+Kids%27+F10+Messi+TRX+FG+Soccer+Cleat
+524,24,adidas Men's F10 Messi TRX FG Soccer Cleat,,59.99,http://images.acmesports.sports/adidas+Men%27s+F10+Messi+TRX+FG+Soccer+Cleat
+313,15,Under Armour Women's Seamless Essential Sport,,24.99,http://images.acmesports.sports/Under+Armour+Women%27s+Seamless+Essential+Sports+Bra
+314,15,Nike Women's Studio Wrap,,36.99,http://images.acmesports.sports/Nike+Women%27s+Studio+Wrap
+
+sort the data based on prod-price
+for i in prdfmp.groupByKey().flatMap(lambda a: sorted(a[1], key = lambda k: k.split(",")[4])).take(50):print(i)
+
+320,15,Manduka PRO Yoga Mat,,100.0,http://images.acmesports.sports/Manduka+PRO+Yoga+Mat
+332,15,Under Armour Women's Pure Stretch Sheer Cheek,,12.0,http://images.acmesports.sports/Under+Armour+Women%27s+Pure+Stretch+Sheer+Cheeky+Underwear
+
+for i in prdfmp.groupByKey().flatMap(lambda a: sorted(a[1], key = lambda k: float(k.split(",")[4]))).take(50):print(i)
+336,15,Nike Swoosh Headband - 2",,5.0,http://images.acmesports.sports/Nike+Swoosh+Headband+-+2%22
+332,15,Under Armour Women's Pure Stretch Sheer Cheek,,12.0,http://images.acmesports.sports/Under+Armour+Women%27s+Pure+Stretch+Sheer+Cheeky+Underwear
+
+sort in desc
+for i in prdfmp.groupByKey().flatMap(lambda a: sorted(a[1], key = lambda k: float(k.split(",")[4]),reverse=True)).take(50):print(i)
+
+320,15,Manduka PRO Yoga Mat,,100.0,http://images.acmesports.sports/Manduka+PRO+Yoga+Mat
+322,15,Nike Women's Studio Wrap Three-Part Pack,,81.99,http://images.acmesports.sports/Nike+Women%27s+Studio+Wrap+Three-Part+Pack
+
+
+
+
+topn products by price by category
+def fetchtopn(rec, topn):
+  x = []
+  x = list(sorted(rec[1], key = lambda k:float(k.split(",")[4]),reverse = True))
+  import itertools
+  return(y for y in list(itertools.islice(x,0,topn)))
+
+for i in prdfmp.groupByKey().flatMap(lambda a: fetchtopn(a,2)).take(50):print(i)
+
+229,11,Marcy Diamond 9010 Smith Cage,,799.99,http://images.acmesports.sports/Marcy+Diamond+9010+Smith+Cage
+226,11,Bowflex SelectTech 1090 Dumbbells,,599.99,http://images.acmesports.sports/Bowflex+SelectTech+1090+Dumbbells
+516,24,Callaway X Hot Laser Rangefinder,,229.99,http://images.acmesports.sports/Callaway+X+Hot+Laser+Rangefinder
+508,24,PUMA Men's evoPOWER 1 Tricks FG Soccer Cleat,,189.99,http://images.acmesports.sports/PUMA+Men%27s+evoPOWER+1+Tricks+FG+Soccer+Cleat
+320,15,Manduka PRO Yoga Mat,,100.0,http://images.acmesports.sports/Manduka+PRO+Yoga+Mat
+322,15,Nike Women's Studio Wrap Three-Part Pack,,81.99,http://images.acmesports.sports/Nike+Women%27s+Studio+Wrap+Three-Part+Pack
+1226,55,adidas Men's New York Red Bulls Navy 2014 Sec,,85.0,http://images.acmesports.sports/adidas+Men%27s+New+York+Red+Bulls+Navy+2014+Secondary+Replica...
+1227,55,adidas Men's Sporting KC Navy 2014 Secondary ,,85.0,http://images.acmesports.sports/adidas+Men%27s+Sporting+KC+Navy+2014+Secondary+Replica+Jersey
+407,19,PUMA Men's evoPOWER 1 Tricks FG Soccer Cleat,,189.99,http://images.acmesports.sports/PUMA+Men%27s+evoPOWER+1+Tricks+FG+Soccer+Cleat
+425,19,Nike Men's Air Max 2014 Running Shoe,,149.99,http://images.acmesports.sports/Nike+Men%27s+Air+Max+2014+Running+Shoe
+>>> 
+
+
+Dense ranking (top n priced products)
+
+def getTopDenseN(rec, topN):
+  x = [ ]
+  topNPrices = [ ]
+  prodPrices = [ ]
+  prodPricesDesc = [ ]
+  for i in rec[1]:
+    prodPrices.append(float(i.split(",")[4]))
+  prodPricesDesc = list(sorted(set(prodPrices), reverse=True))
+  import itertools
+  topNPrices = list(itertools.islice(prodPricesDesc, 0, topN))
+  for j in rec[1]:
+    if(float(j.split(",")[4]) in topNPrices):
+      x.append(j)
+  return(y for y in x)
+
+
+for i in prdfmp.groupByKey().flatMap(lambda x: getTopDenseN(x, 2)).collect(): print(i)
+
+in the func
+for j in sorted(rec[1], key=lambda k: float(k.split(",")[4]), reverse=True):
+
+
+
+
