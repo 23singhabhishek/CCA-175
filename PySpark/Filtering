@@ -90,3 +90,30 @@ calrf = calrev.filter(lambda a: a[1] >= 1000.00 )
 #calrev = join.aggregateByKey((0,0), lambda a,b:  )
 
 
+
+
+mysql> select count(*) from orders where order_status = 'CANCELED';+----------+
+| count(*) |
++----------+
+|     1428 |
++----------+
+1 row in set (0.09 sec)
+
+mysql> select order_item_order_id, sum(order_item_subtotal) from  order_items  group by order_item_order_id 
+having sum(order_item_subtotal) > 1000.00;
+7519 rows
+
+mysql> select count(*) from orders where order_status = 'CANCELED';+----------+
+| count(*) |
++----------+
+|     1428 |
++----------+
+1 row in set (0.09 sec)
+
+
+
+mysql> select order_id, order_status, sum(order_item_subtotal)as tot from orders, order_items 
+where order_id = order_item_order_id and order_status = 'CANCELED' group by order_id having tot > 1000.00;
+139 rows
+
+
