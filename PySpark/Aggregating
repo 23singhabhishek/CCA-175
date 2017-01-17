@@ -1,0 +1,467 @@
+
+Get total count of records
+==================================================
+ordersRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordersRDD.count()
+
+Get the sum total of revenue
+==================================================
+orderitemsRDD = sc.textFile("sqoop/sqoop-import/order_items")
+map1 = orderitemsRDD.map(lambda a: float(a.split(",")[4]))
+
+map1.reduce(lambda rev1, rev2: rev1+rev2)
+
+==> 34322619.930019915
+
+
+Get the record details for the product with maximum product_price
+============================================================
+
+productsRDD = sc.textFile("sqoop/sqoop-import/products")
+prodmap = productsRDD.map(lambda rec:rec)
+prodmap.reduce(lambda rec1,rec2: (rec1 if (float(rec1.split(",")[4]) >= \
+float(rec2.split(",")[4])) else rec2))
+==> 1999.99
+685 - products_id --> this record should be deleted
+
+Get the record details for the product with minimum product_price
+==================================================
+prodmap.reduce(lambda rec1, rec2: (rec1 if(float(rec1.split(",")[4]) <= float(rec2.split(",")[4])) else rec2))
+
+**** How to fetch all records if there are multiple records with the minimum product_price
+====================================================================================================
+prodmap = productsRDD.map(lambda rec:rec)
+prodprice = prodmap.map(lambda a:float(a.split(",")[4]))
+minprice = prodprice.reduce(lambda rec1, rec2: (rec1 if(rec1 <= rec2) else rec2))
+
+prodmap.reduce(lambda a: (a if(float(a.split(",")[4]) == minprice))) ****************
+
+
+get the total revenue
+==================================================
+orditmsRDD = sc.textFile("sqoop/sqoop-import/order_items")
+totrev = orditmsRDD.map(lambda rec: float(rec.split(",")[4])).reduce(lambda acc, val:acc + val)    acc --> accumulator, val --> value
+totrev (hit 'Enter')
+==> >>> totrev
+34322619.930019915
+
+get the total distinct orders
+==================================================
+totords = orditmsRDD.map(lambda rec: rec.split(",")[1]).distinct().count()
+==> 57431
+average rev
+
+average rev per order:
+==================================================
+totrev/totords
+
+>>> totrev/totords
+597.63228796329361
+=========================================================
+
+
+countByKey()
+==================================================
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], 0))         (in place of zero, any number can be used. Even one can be used)
+ordmap.countByKey()
+
+the above output is a list
+for i in ordmap.countByKey().items():
+  print(i)
+ 
+if the items functions is not used then only the key is displayed. Using items gives the total number of records in the table for
+each order status.
+
+
+
+
+groupByKey() - i/p data for aggregation is very large and after aggregation the number of recs is more or less the same 
+              (does not use combiner)
+reduceBYKey() - i/p data for aggregation is very large and after aggregation the number of recs is small
+aggregateByKey()
+conbineByKey() - i/p data for aggregation is very large and after aggregation the number of recs is small
+
+groupByKey:
+should be followed by map
+ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], 1))
+ordbystat = ordmap.groupByKey().map(lambda rec: (rec[0], sum(rec[1])))
+
+
+reduceByKey(): takes 2 parameters accumulator and value. aggregation like counting the sum is simpler here compared to 
+groupByKey(). It also uses combiner. It uses 1 parameter (tuple of acc & val)
+
+ordbystat = ordmap.reduceByKey(lambda acc, val: acc+val)
+
+
+aggregateByKey(): takes 2 parameters
+ordmap = ordRDD.map(lambda rec: (rec.split(",")[3], rec))
+
+
+===============
+Practice questions:
+
+1. Number of orders by status:
+
+a. countByKey()
+  ============
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a:(a.split(",")[3],1)) ==> the value can be anything ordmap = ordRDD.map(lambda a:(a.split(",")[3],2)) 
+ordcnt = ordmap.countByKey()
+print(ordcnt)
+
+>>> print(ordcnt)
+defaultdict(<type 'int'>, {u'COMPLETE': 22899, u'PAYMENT_REVIEW': 729, u'PROCESSING': 8275, u'CANCELED': 1428, 
+u'PENDING': 7610, u'CLOSED': 7556, u'PENDING_PAYMENT': 15030, u'SUSPECTED_FRAUD': 1558, u'ON_HOLD': 3798})
+
+The output from countByKey() is a dictionary. The items need to be extracted.
+
+ordcnt = ordmap.countByKey().items()
+>>> print(ordcnt)
+[(u'COMPLETE', 22899), (u'PAYMENT_REVIEW', 729), (u'PROCESSING', 8275), (u'CANCELED', 1428), (u'PENDING', 7610), 
+(u'CLOSED', 7556), (u'PENDING_PAYMENT', 15030), (u'SUSPECTED_FRAUD', 1558), (u'ON_HOLD', 3798)]
+
+for i in ordmap.countByKey().items():print(i)
+(u'COMPLETE', 22899)
+(u'PAYMENT_REVIEW', 729)
+(u'PROCESSING', 8275)
+(u'CANCELED', 1428)
+(u'PENDING', 7610)
+(u'CLOSED', 7556)
+(u'PENDING_PAYMENT', 15030)
+(u'SUSPECTED_FRAUD', 1558)
+(u'ON_HOLD', 3798)
+
+b. groupByKey()
+   ============
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a:(a.split(",")[3],1))
+ordcnt = ordmap.groupByKey().map(lambda t: (t[0], sum(t[1])))
+
+for i in ordcnt.collect():print(i)
+
+(u'SUSPECTED_FRAUD', 1558)
+(u'CANCELED', 1428)
+(u'COMPLETE', 22899)
+(u'PENDING_PAYMENT', 15030)
+(u'PENDING', 7610)
+(u'CLOSED', 7556)
+(u'ON_HOLD', 3798)
+(u'PROCESSING', 8275)
+(u'PAYMENT_REVIEW', 729)
+
+
+c.reduceByKey()
+  =============
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a:(a.split(",")[3],1))     
+ordcnt = ordmap.reduceByKey(lambda a,b: a+b)
+
+for i in ordcnt.collect():print(i)
+(u'SUSPECTED_FRAUD', 1558)
+(u'CANCELED', 1428)
+(u'COMPLETE', 22899)
+(u'PENDING_PAYMENT', 15030)
+(u'PENDING', 7610)
+(u'CLOSED', 7556)
+(u'ON_HOLD', 3798)
+(u'PROCESSING', 8275)
+(u'PAYMENT_REVIEW', 729)
+
+
+d. aggregateByKey()
+   ================
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a: (a.split(",")[3], a))
+ordcnt = ordmap.aggregateByKey(0, lambda acc, val: acc+1, lambda acc,val:acc+val)
+
+for i in ordcnt.collect():print(i)
+(u'SUSPECTED_FRAUD', 1558)
+(u'CANCELED', 1428)
+(u'COMPLETE', 22899)
+(u'PENDING_PAYMENT', 15030)
+(u'PENDING', 7610)
+(u'CLOSED', 7556)
+(u'ON_HOLD', 3798)
+(u'PROCESSING', 8275)
+(u'PAYMENT_REVIEW', 729)
+
+e. combineByKey()
+   ==============
+   
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a: (a.split(",").[3],a))
+ordcnt = ordmap.combineByKey(lambda val:1,lambda acc, val:acc+1, lambda acc,val:acc+val)
+
+for i in ordcnt.collect():print(i)
+(u'SUSPECTED_FRAUD', 1558)
+(u'CANCELED', 1428)
+(u'COMPLETE', 22899)
+(u'PENDING_PAYMENT', 15030)
+(u'PENDING', 7610)
+(u'CLOSED', 7556)
+(u'ON_HOLD', 3798)
+(u'PROCESSING', 8275)
+(u'PAYMENT_REVIEW', 729)
+
+
+2. Number of orders by order date and order status
+
+The table to be referred is orders. 
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a: ((a.split(",")[1], a.split(",")[3]),1))
+ordcnt = ordmap.reduceByKey(lambda a,b: a + b)
+for i in ordcnt.collect():print(i)
+((u'2014-06-19 00:00:00.0', u'PENDING_PAYMENT'), 52)
+((u'2014-06-06 00:00:00.0', u'PENDING_PAYMENT'), 41)
+((u'2013-09-09 00:00:00.0', u'SUSPECTED_FRAUD'), 4)
+
+ 
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a:((a.split(",")[3], a.split(",")[1]),1))
+ordcnt = ordmap.reduceByKey(lambda a,b:a+b)
+for i in ordcnt.collect():print(i)
+((u'PENDING', u'2014-02-14 00:00:00.0'), 20)
+((u'PENDING_PAYMENT', u'2013-12-15 00:00:00.0'), 52)
+((u'SUSPECTED_FRAUD', u'2013-09-14 00:00:00.0'), 8)
+
+The group by keys is included under the variable 'K' in (K,V). Can be extended to any number.
+As it involves aggregation, groupByKey is eliminated. But we can obtain the same result using countByKey() and groupByKey().
+The best option is reduceByKey() as the logic for combiner and reducer is the same.
+
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a: ((a.split(",")[1], a.split(",")[3]),1))
+for i in ordmap.countByKey().items():print(i)
+
+((u'2013-12-22 00:00:00.0', u'PAYMENT_REVIEW'), 2)
+((u'2013-10-06 00:00:00.0', u'ON_HOLD'), 14)
+((u'2013-09-05 00:00:00.0', u'PENDING'), 27)
+((u'2014-05-27 00:00:00.0', u'PAYMENT_REVIEW'), 2)
+
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a: ((a.split(",")[1], a.split(",")[3]),1))
+ordcnt = ordmap.groupByKey().map(lambda t: (t[0], sum(t[1])))
+for i in ordcnt.collect():print(i)
+
+((u'2013-12-03 00:00:00.0', u'ON_HOLD'), 10)
+((u'2014-06-19 00:00:00.0', u'PENDING_PAYMENT'), 52)
+((u'2014-06-06 00:00:00.0', u'PENDING_PAYMENT'), 41)
+((u'2013-09-09 00:00:00.0', u'SUSPECTED_FRAUD'), 4)
+
+
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a: ((a.split(",")[1], a.split(",")[3]),a))
+ordcnt = ordmap.aggregateByKey(0, lambda acc, val: acc+1, lambda acc, val: acc+val)
+for i in ordcnt.collect():print(i)
+
+((u'2013-12-03 00:00:00.0', u'ON_HOLD'), 10)
+((u'2014-06-19 00:00:00.0', u'PENDING_PAYMENT'), 52)
+((u'2014-06-06 00:00:00.0', u'PENDING_PAYMENT'), 41)
+((u'2013-09-09 00:00:00.0', u'SUSPECTED_FRAUD'), 4)
+
+
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordmap = ordRDD.map(lambda a : ((a.split(",")[1], a.split(",")[3]),a))
+ordcnt = ordmap.combineByKey(lambda val:1, lambda acc, val:acc+1, lambda acc, val: acc+val)
+for i in ordcnt.collect():print(i)
+
+((u'2013-12-03 00:00:00.0', u'ON_HOLD'), 10)
+((u'2014-06-19 00:00:00.0', u'PENDING_PAYMENT'), 52)
+((u'2014-06-06 00:00:00.0', u'PENDING_PAYMENT'), 41)
+((u'2013-09-09 00:00:00.0', u'SUSPECTED_FRAUD'), 4)
+
+
+3. Generate average revenue per day
+
+total rev per day per order:
+---------------------------
+mysql> select a.order_date, b.order_item_order_id, sum(b.order_item_subtotal) from orders a, order_items b 
+where a.order_id = b.order_item_order_id group by a.order_date, b.order_item_order_id;
+ --> 57431 rows
+
+mysql> select a.order_date, sum(b.order_item_subtotal) from orders a, order_items b 
+where a.order_id = b.order_item_order_id group by a.order_date;
+--> 364 rows
+
+select a.order_date, avg(b.order_item_subtotal) from orders a, order_items b 
+where a.order_id = b.order_item_order_id group by a.order_date;
+there is a discrepancy in the result obtained via sql and via pyspark:: 
+eg: 
+1 ==> 10 ==> 10 + 5 + 7 = 22      now, average as per my sql: (22+23+27)/8 = 9 and as per pyspark (22+23+27)/3 = 24
+1 ==> 5  ==> 
+1 ==> 7  ==> 
+2 ==> 20 ==>  20 + 3 = 23
+2 ==> 3  ==>  
+3 ==> 4  ==> 4 + 8 + 15 = 27
+3 ==> 8  ==> 
+3 ==> 15 ==> 
+
+
+
+
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+ordmap = ordRDD.map(lambda a: (a.split(",")[0], a))
+orditmap = orditmRDD.map(lambda a: (a.split(",")[1], a))
+joinds = orditmap.join(ordmap)
+
+(u'35236', (u'87999,35236,365,1,59.99,59.99', u'35236,2014-02-27 00:00:00.0,3987,PENDING'))
+(u'35236', (u'88000,35236,191,1,99.99,99.99', u'35236,2014-02-27 00:00:00.0,3987,PENDING'))
+
+map1 = joinds.map(lambda t: ((t[1][1].split(",")[1], t[1][1].split(",")[0]), float(t[1][0].split(",")[4])))
+((u'2014-02-27 00:00:00.0', u'35236'), 59.990000000000002)
+((u'2014-02-27 00:00:00.0', u'35236'), 99.989999999999995)
+((u'2014-02-27 00:00:00.0', u'35236'), 59.990000000000002)
+((u'2014-02-27 00:00:00.0', u'35236'), 239.96000000000001)
+((u'2014-02-27 00:00:00.0', u'35236'), 299.98000000000002)
+
+revperord = map1.reduceByKey(lambda a,b: a+b)
+((u'2013-10-27 00:00:00.0', u'14807'), 919.84000000000003)
+((u'2013-09-10 00:00:00.0', u'7752'), 1019.9100000000001)
+((u'2013-09-29 00:00:00.0', u'10803'), 559.96000000000004)
+((u'2014-05-12 00:00:00.0', u'47051'), 1054.8299999999999)
+((u'2013-11-19 00:00:00.0', u'18829'), 499.93000000000006)
+>>> 
+
+rpomap = revperord.map(lambda a: (a[0][0], a[1]))
+(u'2013-10-27 00:00:00.0', 919.84000000000003)
+(u'2013-09-10 00:00:00.0', 1019.9100000000001)
+(u'2013-09-29 00:00:00.0', 559.96000000000004)
+(u'2014-05-12 00:00:00.0', 1054.8299999999999)
+(u'2013-11-19 00:00:00.0', 499.93000000000006)
+
+rpomaps = rpomap.sortByKey()
+(u'2013-07-25 00:00:00.0', 549.94000000000005)
+(u'2013-07-25 00:00:00.0', 699.85000000000002)
+(u'2013-07-25 00:00:00.0', 819.87)
+(u'2013-07-25 00:00:00.0', 1109.8499999999999)
+
+rpomaps.count(): 57431
+
+single function to get order_item_subtotal per day and number of distinct orders per day:
+i/p is float, output is a tuple containing float and count of distinct orders
+revperday = rpomap.aggregateByKey((0,0), lambda acc,rev: (acc[0] + rev, acc[1] + 1), lambda t1, t2: (round(t1[0] + t2[0] ,2),
+t1[1] + t2[1]))
+
+for i in revperday.sortByKey().collect():print(i)
+(u'2013-07-25 00:00:00.0', (68153.830000000002, 116))
+(u'2013-07-26 00:00:00.0', (136520.17000000001, 233))
+(u'2013-07-27 00:00:00.0', (101074.34, 175))
+(u'2013-07-28 00:00:00.0', (87123.080000000002, 158))
+
+revperday.count() ==> 364 entries
+
+using combineByKey()
+
+revperdayc = rpomap.combineByKey(lambda x: (x,1), lambda acc, val: (acc[0]+val, acc[1]+1), lambda t1, t2: (t1[0]+t2[0] , 
+t1[1] + t2[1]))
+
+(u'2013-07-25 00:00:00.0', (68153.830000000002, 116))
+(u'2013-07-26 00:00:00.0', (136520.17000000001, 233))
+(u'2013-07-27 00:00:00.0', (101074.34, 175))
+(u'2013-07-28 00:00:00.0', (87123.079999999987, 158))
+
+
+avgrevperday = revperday.map(lambda a: (a[0], a[1][0]/a[1][1]))
+
+(u'2013-07-25 00:00:00.0', 587.5330172413793)
+(u'2013-07-26 00:00:00.0', 585.92347639484979)
+(u'2013-07-27 00:00:00.0', 577.56765714285712)
+(u'2013-07-28 00:00:00.0', 551.41189873417727)
+(u'2013-07-29 00:00:00.0', 635.58837962962957)
+
+to get the values as per the logic used in mysql:
+--------------------------------------------
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+ordmap = ordRDD.map(lambda a: (a.split(",")[0], a))
+orditmap = orditmRDD.map(lambda a: (a.split(",")[1], a))
+joinds = orditmap.join(ordmap)
+
+(u'35236', (u'87999,35236,365,1,59.99,59.99', u'35236,2014-02-27 00:00:00.0,3987,PENDING'))
+(u'35236', (u'88000,35236,191,1,99.99,99.99', u'35236,2014-02-27 00:00:00.0,3987,PENDING'))
+
+map1 = joinds.map(lambda t: ((t[1][1].split(",")[1], t[1][1].split(",")[0]), float(t[1][0].split(",")[4])))
+((u'2014-02-27 00:00:00.0', u'35236'), 59.990000000000002)
+((u'2014-02-27 00:00:00.0', u'35236'), 99.989999999999995)
+
+map2 = map1.map(lambda a: (a[0][0], a[1]))
+(u'2014-07-24 00:00:00.0', 35.979999999999997)
+(u'2014-07-24 00:00:00.0', 399.98000000000002)
+
+aggr = map2.aggregateByKey((0,0), lambda acc,val: (acc[0]+rev, acc[1]+1), lambda a,b: (a[0]+b[0], a[1]+b[1]))
+(u'2013-07-25 00:00:00.0', (68153.829999999973, 339))
+(u'2013-07-26 00:00:00.0', (136520.1699999999, 694))
+(u'2013-07-27 00:00:00.0', (101074.33999999995, 503))
+(u'2013-07-28 00:00:00.0', (87123.079999999944, 438))
+
+avgrev = aggr.map(lambda a: (a[0], a[1][0]/a[1][1]))
+for i in avgrev.sortByKey().take(10): print(i)
+
+(u'2013-07-25 00:00:00.0', 201.04374631268428)
+(u'2013-07-26 00:00:00.0', 196.71494236311224)
+(u'2013-07-27 00:00:00.0', 200.94302186878718)
+(u'2013-07-28 00:00:00.0', 198.91114155251128)
+
+
+
+4. Get customer_id with max revenue for each day
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+
+ordmap = ordRDD.map(lambda a: (a.split(",")[0] , a))
+ordimap = orditmRDD.map(lambda a: (a.split(",")[1], a))
+join =  ordimap.join(ordmap)
+(u'35236', (u'87999,35236,365,1,59.99,59.99', u'35236,2014-02-27 00:00:00.0,3987,PENDING'))
+(u'35236', (u'88000,35236,191,1,99.99,99.99', u'35236,2014-02-27 00:00:00.0,3987,PENDING'))
+
+jmap = join.map(lambda a: ((a[1][1].split(",")[1], a[1][1].split(",")[2]), float(a[1][0].split(",")[4])))
+
+((u'2014-02-27 00:00:00.0', u'3987'), u'59.99')
+((u'2014-02-27 00:00:00.0', u'3987'), u'99.99')
+
+revpdpc = jmap.reduceByKey(lambda acc, val: acc+val)
+
+((u'2014-02-22 00:00:00.0', u'7155'), 399.98000000000002)
+((u'2013-10-21 00:00:00.0', u'11284'), 1364.8900000000001)
+
+Now, in the above transformation, the key is (order_Date and customer_id) while the value is item_subtotal. To find the cust-id
+wit max revenue for each day, we have to make order_Date as the key and rest of the parameters as value.
+revmap = revpdpc.map(lambda a: (a[0][0] , (a[0][1], a[1])))
+(u'2014-02-22 00:00:00.0', (u'7155', 399.98000000000002))
+(u'2013-10-21 00:00:00.0', (u'11284', 1364.8900000000001))
+revmap.count() ==> 57047
+
+maxrev = revmap.reduceByKey(lambda x,y : (x if x[1] >= y[1] else y))
+x[0] --> customer id
+x[1] --> revenue
+
+maxrev.count()  ==> 364 rows
+(u'2013-07-25 00:00:00.0', (u'11941', 1649.8000000000002))
+(u'2013-07-26 00:00:00.0', (u'32', 2009.75))
+(u'2013-07-27 00:00:00.0', (u'11491', 1379.8800000000001))
+(u'2013-07-28 00:00:00.0', (u'5738', 1499.8700000000001))
+
+The above logic gives the list of one customer per day with max rev. if there are multiple customers with the same value for rev
+then the logic needs to be changed. ******
+
+def findMax(x,y):
+  if (x[1] >= y[1]):
+    return x
+  else:
+    return y
+    
+maxrevf = revmap.reduceByKey(lambda a,b: findMax(a,b))
+maxrevf.count() ==> 364 rows
+
+for i in maxrevf.sortByKey().take(10):print(i)
+(u'2013-07-25 00:00:00.0', (u'11941', 1649.8000000000002))
+(u'2013-07-26 00:00:00.0', (u'32', 2009.75))
+(u'2013-07-27 00:00:00.0', (u'11491', 1379.8800000000001))
+(u'2013-07-28 00:00:00.0', (u'5738', 1499.8700000000001))
+
+
+
+============
+
+
