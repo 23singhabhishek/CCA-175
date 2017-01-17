@@ -53,7 +53,8 @@ Get the list of cancelled orders, get the lost of orders with revenue > 1000 and
 ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
 ordf = ordRDD.filter(lambda a: a.split(",")[3] == 'CANCELED')
-ordmap = ordf.map(lambda a: (a.split(",")[0] , a.split(",")[3])).sortByKey()
+ordmap = ordf.map(lambda a: (a.split(",")[0] , a.split(",")[3])).sortByKey()    (eliminating the sortByKey() parameter stops the
+                                                                                  processing)
 orditmp = orditmRDD.map(lambda a: (a.split(",")[1], float(a.split(",")[4])))
 orditred = orditmp.reduceByKey(lambda a,b: a+b) 
 orditrf = orditred.filter(lambda a: a[1] >= 1000.00).sortByKey()
