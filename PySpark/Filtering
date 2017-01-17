@@ -36,12 +36,28 @@ ordmap = ordf.map(lambda a: (a.split(",")[0] , a.split(",")[3]))
 orditmap = orditmRDD.map(lambda a: (a.split(",")[1], float(a.split(",")[4])))
 
 ################################################################################
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+ordf = ordRDD.filter(lambda a: a.split(",")[3] == 'CANCELED')
+ordmap = ordf.map(lambda a: (int(a.split(",")[0]) , a.split(",")[3])).sortByKey()
+orditmp = orditmRDD.map(lambda a: (int(a.split(",")[1]), float(a.split(",")[4])))
+orditred = orditmp.reduceByKey(lambda a,b: a+b) 
+orditrf = orditred.filter(lambda a: a[1] >= 1000.00).sortByKey()
+orditrf.saveAsTextFile("pyspark/orditrf")
+ordmap.saveAsTextFile("pyspark/ordmps")
+
+
 orditmap = orditmRDD.map(lambda a: (int(a.split(",")[1]), float(a.split(",")[4])))
 ordm1 = ordmap.map(lambda a: (a[0]))
+
+
 orditred = orditmap.reduceByKey(lambda a,b: a+b)
 orditrf = orditred.filter(lambda a: a[1] >= 1000.00)
+
 join =orditrf.join(ordm1) ==> unable to display the contents **** 
 
+orditrfs = orditrf.sortByKey()
+join1 = orditrfs.join(ordm1)
 ordm1.saveAsTextFile("pyspark/ordm1")
 orditrf.saveAsTextFile("pyspark/orditrf")
 ################################################################################
@@ -51,7 +67,7 @@ orditrf.saveAsTextFile("pyspark/orditrf")
 ##ordifrf.count() ==> 7519
 
 
-join = orditmap.join(ordmap)
+join = orditmap.join(ordmap)        3519 recs
 
 (u'61952', (299.98000000000002, u'CANCELED'))
 (u'61952', (399.98000000000002, u'CANCELED'))
