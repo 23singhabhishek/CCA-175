@@ -1,41 +1,66 @@
 
 Data can be filtered before/after the map function.
+===================================================
 
 ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 
 1. Get the list of orders with order_Status as SUSPECTED_FRAUD.
-
+   ************************************************************
 filt = ordRDD.filter(lambda a: a.split(",")[3] == "SUSPECTED_FRAUD")
 for i in filt.collect():print(i)        ==> gives the list of orders with order_status == "SUSPECTED_FRAUD
 
 for i in ordRDD.filter(lambda a: a.split(",")[3] == "SUSPECTED_FRAUD").collect():print(i)
 
 2. Get all orders with the word 'END' in its status
-
+   *************************************************
 for i in ordRDD.filter(lambda a:'END' in a.split(",")[3]).take(150):print(i)
 
 3. Get the list of orders whose order_id > 100
-
+   *******************************************
+for i in ordRDD.filter(lambda a: a.split(",")[0] > 100).take(100):print(i)
 
 4. Get the list of orders with order_id > 100 or order stat is in 'PENDING' status
+   ********************************************************************************
+for i in ordRDD.filter(lambda a: int(a.split(",")[0]) > 100 or a.split(",")[3] == 'PENDING').take(100):print(i)
+for i in ordRDD.filter(lambda a: int(a.split(",")[0]) > 100 or "PENDING" in a.split(",")[3]).take(100):print(i)
 
 5. Get the list of orders with order_id > 1000 and has got the word 'PENDING' in ord-stat or the order is 'CANCELED'
+   *****************************************************************************************************************
+for i in ordRDD.filter(lambda a: int(a.split(",")[0]) > 1000 and ("PENDING" in a.split(",")[3] or a.split(",")[3] == 'CANCELED')
+).take(100):print(i)
 
-
-6. Get the list of orders whose ord-id > 1000 and order-stat is not comlete
-
+6. Get the list of orders whose ord-id > 1000 and order-stat is not complete
+    *************************************************************************
+for i in ordRDD.filter(lambda a: int(a.split(",")[0]) > 1000 and a.split(",")[3] != 'COMPLETE').take(100):print(i)
 
 7. Get the list of cancelled orders with amount greater than 1000$
+    **************************************************************
 ordRDD = sc.textFile("sqoop/sqoop-import/orders")
-
 orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
-
 ordf = ordRDD.filter(lambda a: a.split(",")[3] == 'CANCELED')
-
 ordmap = ordf.map(lambda a: (a.split(",")[0] , a.split(",")[3]))
 orditmap = orditmRDD.map(lambda a: (a.split(",")[1], float(a.split(",")[4])))
-
+join = orditmap.join(ordmap) 
+joinm = join.map(lambda a: ((a[0], a[1][1]), a[1][0]))
+calrev = joinm.reduceByKey(lambda a,b: a + b )
+calrf = calrev.filter(lambda a: a[1] >= 1000.00 )
+for i in calrf.take(100):print(i)
+calrf.count() --> 139 rows
 ################################################################################
+
+Get the list of cancelled orders, get the lost of orders with revenue > 1000 and then join the 2 datasets
+---------------------------------------------------------------------------------------------------------
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+ordf = ordRDD.filter(lambda a: a.split(",")[3] == 'CANCELED')
+ordmap = ordf.map(lambda a: (a.split(",")[0] , a.split(",")[3])).sortByKey()
+orditmp = orditmRDD.map(lambda a: (a.split(",")[1], float(a.split(",")[4])))
+orditred = orditmp.reduceByKey(lambda a,b: a+b) 
+orditrf = orditred.filter(lambda a: a[1] >= 1000.00).sortByKey()
+orditrf.join(ordmap)
+for i in orditrf.join(ordmap).take(100):print(i)
+orditrf.join(ordmap).count() --> 139 rows
+
 ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
 ordf = ordRDD.filter(lambda a: a.split(",")[3] == 'CANCELED')
@@ -43,53 +68,10 @@ ordmap = ordf.map(lambda a: (int(a.split(",")[0]) , a.split(",")[3])).sortByKey(
 orditmp = orditmRDD.map(lambda a: (int(a.split(",")[1]), float(a.split(",")[4])))
 orditred = orditmp.reduceByKey(lambda a,b: a+b) 
 orditrf = orditred.filter(lambda a: a[1] >= 1000.00).sortByKey()
-orditrf.saveAsTextFile("pyspark/orditrf")
-ordmap.saveAsTextFile("pyspark/ordmps")
-
-
-orditmap = orditmRDD.map(lambda a: (int(a.split(",")[1]), float(a.split(",")[4])))
-ordm1 = ordmap.map(lambda a: (a[0]))
-
-
-orditred = orditmap.reduceByKey(lambda a,b: a+b)
-orditrf = orditred.filter(lambda a: a[1] >= 1000.00)
-
-join =orditrf.join(ordm1) ==> unable to display the contents **** 
-
-orditrfs = orditrf.sortByKey()
-join1 = orditrfs.join(ordm1)
-ordm1.saveAsTextFile("pyspark/ordm1")
-orditrf.saveAsTextFile("pyspark/orditrf")
+orditrf.join(ordmap)
+or i in orditrf.join(ordmap).take(100):print(i)
+orditrf.join(ordmap).count() --> 139 rows
 ################################################################################
-##ordm1.count() ==> 1428
-##orditred.count() ==> 57431
-##orditmap.count() ==> 172198
-##ordifrf.count() ==> 7519
-
-
-join = orditmap.join(ordmap)        3519 recs
-
-(u'61952', (299.98000000000002, u'CANCELED'))
-(u'61952', (399.98000000000002, u'CANCELED'))
-(u'61952', (200.0, u'CANCELED'))
-(u'44647', (199.99000000000001, u'CANCELED'))
-
-joinm = join.map(lambda a: ((a[0], a[1][1]), a[1][0]))
-((u'61952', u'CANCELED'), 299.98000000000002)
-((u'61952', u'CANCELED'), 399.98000000000002)
-((u'61952', u'CANCELED'), 200.0)
-((u'44647', u'CANCELED'), 199.99000000000001)
-
-calrev = joinm.reduceByKey(lambda a,b: a + b )
-((u'59507', u'CANCELED'), 199.99000000000001)
-((u'1598', u'CANCELED'), 449.99000000000001)
-((u'57479', u'CANCELED'), 1219.8500000000001)
-
-calrf = calrev.filter(lambda a: a[1] >= 1000.00 )
-
-#calrev = join.aggregateByKey((0,0), lambda a,b:  )
-
-
 
 
 mysql> select count(*) from orders where order_status = 'CANCELED';+----------+
