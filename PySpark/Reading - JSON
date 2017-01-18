@@ -37,7 +37,7 @@ hadoop -fs put dpts.json /user/cloudera/pyspark
 
 from pyspark import SQLContext
 sqlContext = SQLContext(sc)
-departmentsJson = sqlContext.jsonFile("/user/cloudera/pyspark/departments.json")
+departmentsJson = sqlContext.jsonFile("/user/cloudera/pyspark/departments.json")      this is a collection
 departmentsJson.registerTempTable("departmentsTable")
 departmentsData = sqlContext.sql("select * from departmentsTable")
 for rec in departmentsData.collect():
@@ -49,3 +49,14 @@ departmentsData.toJSON().saveAsTextFile("/user/cloudera/pyspark/departmentsJson"
 
 #Validating the data
 hadoop fs -cat /user/cloudera/pyspark/departmentsJson/part*
+
+
+
+sqlContext.sql("select * from departmentsTable")
+
+
+sqlContext.sql("select * from departmentsTable").toJSON().saveAsTextFile(/user/cloudera/pyspark/jsonf/)
+
+verify the data
+
+
