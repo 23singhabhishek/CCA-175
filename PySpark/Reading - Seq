@@ -1,0 +1,20 @@
+# Reading and Saving Sequence files
+# metadata driven, key value
+
+1. Load data to spark
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+
+2. Transform the data and save the data in sequence file format
+ordmap = ordRDD.map(lambda a: (none,a)).saveAsSequenceFile("pyspark/ordsqnkey")
+
+ordmap = ordRDD.map(lambda a: tuple(a.split(",",1))).saveAsSequenceFile("pyspark/ordsqkey")
+
+path = "user/cloudera/pyspark/ordsqapi"
+ordmap = ordRDD.map(lambda a: tuple(a.split(",",1))).saveAsNewAPIHadoopFile(path, "org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat",
+keyclass="org.apache.hadoop.io.IntWritable",valueclass='org.apache.hadoop.io.Text")
+
+*******Check for other data types for keyclass and valueclass
+
+3. Read the saved file
+ordRDD = sc.sequenceFile("pyspark/ordsqnkey")
+for i in ordRDD.collect():print(i)
