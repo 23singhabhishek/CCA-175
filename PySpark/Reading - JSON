@@ -1,0 +1,51 @@
+
+
+Reading from Hive
+from pyspark.sql import HiveContext
+sqlContext = HiveContext(sc)
+depts = sqlContext.sql("select * from departments")     (the softlink to hive-site.xml should be present)
+for i in depts.collect():print(i)
+
+
+depts = sqlContext.sql("select department_id from departments")
+for i in depts.collect():print(i)
+
+for i in depts.collect():
+  print i.department_id
+  
+  
+depts = sqlContext.sql("select * from sqoop.departments")
+
+
+Writing to Hive tables
+
+depttst = sqlContext.sql("create table depttst as select * from departments")
+
+create a file (dpts.json) in Local file system with the following data
+{"department_id":2, "department_name":"Fitness"}
+{"department_id":3, "department_name":"Footwear"}
+{"department_id":4, "department_name":"Apparel"}
+{"department_id":5, "department_name":"Golf"}
+{"department_id":6, "department_name":"Outdoors"}
+{"department_id":7, "department_name":"Fan Shop"}
+{"department_id":8, "department_name":"TESTING"}
+{"department_id":8000, "department_name":"TESTING"}
+
+move the file to HDFS
+
+hadoop -fs put dpts.json /user/cloudera/pyspark
+
+from pyspark import SQLContext
+sqlContext = SQLContext(sc)
+departmentsJson = sqlContext.jsonFile("/user/cloudera/pyspark/departments.json")
+departmentsJson.registerTempTable("departmentsTable")
+departmentsData = sqlContext.sql("select * from departmentsTable")
+for rec in departmentsData.collect():
+print(rec)
+
+#Writing data in json format
+departmentsData.toJSON().saveAsTextFile("/user/cloudera/pyspark/departmentsJson")
+
+
+#Validating the data
+hadoop fs -cat /user/cloudera/pyspark/departmentsJson/part*
