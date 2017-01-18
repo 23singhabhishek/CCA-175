@@ -1,6 +1,7 @@
 # Reading and Saving Text files (pyspark)
 # Each line is read as a record in case of text files
-# Files can be read from HDFS, local file system, HDFS with fully qualified names.
+# Files can be read from HDFS, local file system, HDFS with fully qualified names. Default path is hdfs. The file is first searched in 
+hdfs and then in local file system.
 # Python is case sensitive
 
 a. Launch pyspark
@@ -79,11 +80,8 @@ iii. hdfs file
   <property>
     <name>fs.defaultFS</name>
     <value>hdfs://quickstart.cloudera:8020</value>
-    
-    .............
-    
-    
-    
+        .............
+            
 >>> data = sc.textFile("hdfs://quickstart.cloudera:8020/user/cloudera/departments")
 >>> for i in data.collect():
 ...   print(i)
@@ -104,16 +102,11 @@ iv. local filesystem
 id,name
 1,FINE
 2,OCAST
-3,SHWRY
-4,
-
 
 [cloudera@quickstart Documents]$ cat /home/cloudera/Documents/Datasets/weathers.csv
 id,name
 1,FINE
 2,OCAST
-3,SHWRY
-4,
 
 
 >>> data = sc.textFile("file:///home/cloudera/Documents/Datasets/weathers.csv")
@@ -133,6 +126,24 @@ id,name
 
 # Reading and Saving Sequence files
 # metadata driven, key value
+
+1. Load data to spark
+ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+
+2. Transform the data and save the data in sequence file format
+ordmap = ordRDD.map(lambda a: (none,a)).saveAsSequenceFile("pyspark/ordsqnkey")
+
+ordmap = ordRDD.map(lambda a: tuple(a.split(",",1))).saveAsSequenceFile("pyspark/ordsqkey")
+
+path = "user/cloudera/pyspark/ordsqapi"
+ordmap = ordRDD.map(lambda a: tuple(a.split(",",1))).saveAsNewAPIHadoopFile(path, "org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat",
+keyclass="org.apache.hadoop.io.IntWritable",valueclass='org.apache.hadoop.io.Text")
+
+*******Check for other data types for keyclass and valueclass
+
+3. Read the saved file
+ordRDD = sc.sequenceFile("pyspark/ordsqnkey")
+for i in ordRDD.collect():print(i)
 
 
 *********************************************************************************************************************************************************************************************
