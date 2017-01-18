@@ -5,7 +5,7 @@
 ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 
 2. Transform the data and save the data in sequence file format
-ordmap = ordRDD.map(lambda a: (none,a)).saveAsSequenceFile("pyspark/ordsqnkey")
+ordmap = ordRDD.map(lambda a: (None,a)).saveAsSequenceFile("pyspark/ordsqnkey")
 
 ordmap = ordRDD.map(lambda a: tuple(a.split(",",1))).saveAsSequenceFile("pyspark/ordsqkey")
 
@@ -18,3 +18,12 @@ keyclass="org.apache.hadoop.io.IntWritable",valueclass='org.apache.hadoop.io.Tex
 3. Read the saved file
 ordRDD = sc.sequenceFile("pyspark/ordsqnkey")
 for i in ordRDD.collect():print(i)
+
+
+ordRDD = sc.sequenceFile("pyspark/ordsqkey")
+for i in ordRDD.collect():print(i)
+
+
+ordRDD = sc.sequenceFile("pyspark/ordsqapi", "org.apache.hadoop.io.IntWritable", "org.apache.hadoop.io.Text")
+for i in ordRDD.collect():print(i)
+
