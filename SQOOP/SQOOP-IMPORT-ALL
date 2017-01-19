@@ -13,48 +13,72 @@ sqoop import-all-tables \
 Output:
 ------
 hdfs dfs -ls /
+[cloudera@quickstart ~]$ hdfs dfs -ls
+Found 8 items
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:09 categories
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:11 customers
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:13 departments
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:15 order_items
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:16 orders
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:18 products
 
 hdfs dfs -ls categories
+[cloudera@quickstart ~]$ hdfs dfs -ls categories
+Found 5 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-18 23:09 categories/_SUCCESS
+-rw-r--r--   1 cloudera cloudera        271 2017-01-18 23:09 categories/part-m-00000
+-rw-r--r--   1 cloudera cloudera        263 2017-01-18 23:09 categories/part-m-00001
+-rw-r--r--   1 cloudera cloudera        266 2017-01-18 23:09 categories/part-m-00002
+-rw-r--r--   1 cloudera cloudera        229 2017-01-18 23:09 categories/part-m-00003
+
 
 hdfs dfs -ls /user/cloudera/categories
 
 
 2. Give the command specifying the target directory
    ------------------------------------------------
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera \
+--target-dir sqoop/sqp-impall
+
+*********************************************************************
+* we can't use the option target-dir with import-all-tables command *
+*********************************************************************
 
 
 3. Give the command specifying the warehouse directory
    ---------------------------------------------------
-
-
-
-
-4. 
-
-
 sqoop import-all-tables \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_dba  \
---password cloudera  \
---warehouse-dir /user/cloudera/sqoop/sqoop-import/sqpimpall
+--username retail_dba \
+--password cloudera \
+--warehouse-dir sqoop/sqp-impall
 
-[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop/sqoop-import/sqpimpall/*
+[cloudera@quickstart ~]$ hdfs dfs -ls sqoop/sqp-impall
+Found 6 items
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:38 sqoop/sqp-impall/categories
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:40 sqoop/sqp-impall/customers
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:41 sqoop/sqp-impall/departments
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:43 sqoop/sqp-impall/order_items
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:45 sqoop/sqp-impall/orders
+drwxr-xr-x   - cloudera cloudera          0 2017-01-18 23:46 sqoop/sqp-impall/products
+
+[cloudera@quickstart ~]$ hdfs dfs -ls sqoop/sqp-impall/*
 Found 5 items
--rw-r--r--   1 cloudera cloudera          0 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/_SUCCESS
--rw-r--r--   1 cloudera cloudera        271 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/part-m-00000
--rw-r--r--   1 cloudera cloudera        263 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/part-m-00001
--rw-r--r--   1 cloudera cloudera        266 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/part-m-00002
--rw-r--r--   1 cloudera cloudera        229 2017-01-03 04:16 /user/cloudera/sqoop/sqoop-import/sqpimpall/categories/part-m-00003
-Found 5 items
--rw-r--r--   1 cloudera cloudera          0 2017-01-03 04:18 /user/cloudera/sqoop/sqoop-import/sqpimpall/customers/_SUCCESS
--rw-r--r--   1 cloudera cloudera     237145 2017-01-03 04:18 /user/cloudera/sqoop/sqoop-import/sqpimpall/customers/part-m-00000
--rw-r--r--   1 cloudera cloudera     237965 2017-01-03 04:18 /user/cloudera/sqoop/sqoop-import/sqpimpall/customers/part-m-00001
+-rw-r--r--   1 cloudera cloudera          0 2017-01-18 23:38 sqoop/sqp-impall/categories/_SUCCESS
+-rw-r--r--   1 cloudera cloudera        271 2017-01-18 23:38 sqoop/sqp-impall/categories/part-m-00000
+-rw-r--r--   1 cloudera cloudera        263 2017-01-18 23:38 sqoop/sqp-impall/categories/part-m-00001
+-rw-r--r--   1 cloudera cloudera        266 2017-01-18 23:38 sqoop/sqp-impall/categories/part-m-00002
+-rw-r--r--   1 cloudera cloudera        229 2017-01-18 23:38 sqoop/sqp-impall/categories/part-m-00003
 
 
 
-
+4. Create a new db in hive and then specify the db details in warehouse-dir
+   -------------------------------------------------------------------------
 sqoop import-all-tables \
---connect 'jdbc:mysql://quickstart:3306/retail_db'  \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
 --username retail_Dba  \
 --password cloudera \
 --warehouse-dir /user/hive/warehouse/sqpimp.db
@@ -69,10 +93,80 @@ drwxr-xr-x   - cloudera supergroup          0 2017-01-03 04:57 /user/hive/wareho
 drwxr-xr-x   - cloudera supergroup          0 2017-01-03 04:59 /user/hive/warehouse/sqpimp.db/order_items
 drwxr-xr-x   - cloudera supergroup          0 2017-01-03 05:02 /user/hive/warehouse/sqpimp.db/orders
 drwxr-xr-x   - cloudera supergroup          0 2017-01-03 05:04 /user/hive/warehouse/sqpimp.db/products
-hive> 
 
 
---autoreset to one mapper : the no of mappers is set to one only if the sqoop table is without any primary key
+5. Import all tables from mysql to hive
+   -----------------------------------
+   if the option hive-import is not specified then the data is copied to the destination mentioned in 
+   warehouse-dir or it is copied to the default dest i.e., user/cloudera/
+   
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera  \
+--hive-import \
+--create-hive-table  \
+--hive-home /user/hive/warehouse
+
+hive> show tables;
+OK
+categories
+customers
+departments
+order_items
+orders
+products
+
+hive> dfs -ls /user/hive/warehouse;
+Found 7 items
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:04 /user/hive/warehouse/categories
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:06 /user/hive/warehouse/customers
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:08 /user/hive/warehouse/departments
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:11 /user/hive/warehouse/order_items
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:13 /user/hive/warehouse/orders
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:18 /user/hive/warehouse/products
+drwxrwxrwx   -
+
+6. Import all tables to user created db in hive
+   --------------------------------------------
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera \
+--hive-import \
+--hive-warehouse /user/hive/warehouse \
+--hive-database sqpimpall
+
+hive> dfs -ls /user/hive/warehouse/sqpimpall.db;
+Found 6 items
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:28 /user/hive/warehouse/sqpimpall.db/categories
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:30 /user/hive/warehouse/sqpimpall.db/customers
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:32 /user/hive/warehouse/sqpimpall.db/departments
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:35 /user/hive/warehouse/sqpimpall.db/order_items
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:36 /user/hive/warehouse/sqpimpall.db/orders
+drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:38 /user/hive/warehouse/sqpimpall.db/products
+   
+7. using compression codec
+   -----------------------
+--compression-codec <c>	Use Hadoop codec (default gzip)
+========================================================
+
+sqoop import-all-tables  \
+--m 1
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera \
+--hive-import  \
+--hive-overwrite \
+--create-hive-table  \
+--z  \
+--compression-codec org.apache.hadoop.io.compress.Snappycodec \  ##check this
+--outdir java_files 
+
+
+8. using --autoreset-to-one-mapper option
+   --------------------------------------
+ --autoreset to one mapper : the no of mappers is set to one only if the sqoop table is without any primary key
 ==============================================================================================================
 sqoop import-all-tables \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -95,20 +189,7 @@ Found 5 items
 
 
 
---compression-codec <c>	Use Hadoop codec (default gzip)
-========================================================
 
-sqoop import-all-tables  \
---m 1
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_dba \
---password cloudera \
---hive-import  \
---hive-overwrite \
---create-hive-table  \
---z  \
---compression-codec org.apache.hadoop.io.compress.Snappycodec \  ##check this
---outdir java_files 
 
 
 
