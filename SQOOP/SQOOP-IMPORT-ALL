@@ -1,6 +1,37 @@
 import-all
 ===========
 
+1. Give the command with out specifying any target/warehouse directories or any database
+   -------------------------------------------------------------------------------------
+If no destination is specified the table data is copied to /user/cloudera/tblname/*
+The directory corresponding to each table <tblname> would be created by the command
+
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'   \
+--username retail_dba --password cloudera 
+
+Output:
+------
+hdfs dfs -ls /
+
+hdfs dfs -ls categories
+
+hdfs dfs -ls /user/cloudera/categories
+
+
+2. Give the command specifying the target directory
+   ------------------------------------------------
+
+
+3. Give the command specifying the warehouse directory
+   ---------------------------------------------------
+
+
+
+
+4. 
+
+
 sqoop import-all-tables \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba  \
