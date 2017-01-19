@@ -1,0 +1,14 @@
+
+Check the flume version
+flume-ng version
+
+cd /opt/examples
+cd flume
+ls -ltr
+cd conf
+ls -ltr
+
+
+cloudera flume exercise (google search)
+
+
