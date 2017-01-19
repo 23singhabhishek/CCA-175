@@ -11,4 +11,22 @@ ls -ltr
 
 cloudera flume exercise (google search)
 
+$ telnet
+if telnet is not found then install telnet
+$ sudo yum -y install telnet
+
+Once telnet has been installed, enter telnet again on the command prompt
+Enter quit to exit the telnet prompt
+
+$ ping localhost
+The ip address would be displayed. Click 'Ctrl + C' to exit the loop
+$ ping quickstart.cloudera
+The ip address would be displayed. Click 'Ctrl + C' to exit the loop
+$ ifconfig
+the ip adress is displayed
+$ ping <inet address>
+
+$ ps -ef|grep ssh
+
+$telnet <inet address> 22
 
