@@ -120,6 +120,7 @@ it's seen that the entire line is not displayed, some of thec configuration para
 17/01/19 11:12:03 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: c1. channel.event.take.success == 5
 17/01/19 11:12:03 INFO source.NetcatSource: Source stopping
 17/01/19 11:12:03 INFO node.PollingPropertiesFileConfigurationProvider: Configuration provider stopping
+
 [cloudera@quickstart flume]$ 
 
 
