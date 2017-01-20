@@ -1,6 +1,5 @@
 
-Check the flume version
-flume-ng version
+Check the flume version: flume-ng version
 
 cd /opt/examples
 cd flume
@@ -9,7 +8,7 @@ cd conf
 ls -ltr
 
 
-cloudera flume exercise (google search)
+
 
 $ telnet
 if telnet is not found then install telnet
@@ -30,13 +29,15 @@ $ ps -ef|grep ssh
 
 $telnet <inet address> 22
 
-Example found on flume documentation
+Example found on flume documentation: cloudera flume exercise (google search)
 ===================================
-create a directory on local file system
+1. Create a directory on local file system
+   ----------------------------------------
 $ mkdir flume
 $ mkdir flume/conf
 
-Create an example file in the newly created directory and copy the configuration parameters
+2. Create an example file in the newly created directory and copy the configuration parameters
+   ------------------------------------------------------------------------------------------
 $ vi example.conf
 
 # example.conf: A single-node Flume configuration
@@ -65,8 +66,10 @@ a1.sinks.k1.channel = c1
 
 
 3. Save the contents
+   -----------------
 
 4. Run the command 
+   ---------------
 $ flume-ng agent --name a1 --conf /home/cloudera/flume/conf --conf-file /home/cloudera/flume/conf/example.conf
 
 
@@ -99,7 +102,7 @@ OK
 OK
 
 
-it's seen that the entire line is not displayed, some of thec configuration parameters nee to be changed.
+it's seen that the entire line is not displayed, some of the configuration parameters need to be changed.
 
 17/01/19 11:08:34 INFO source.NetcatSource: Created serverSocket:sun.nio.ch.ServerSocketChannelImpl[/127.0.0.1:44444]
 17/01/19 11:09:47 INFO sink.LoggerSink: Event: { headers:{} body: 48 65 6C 6C 6F 0D                               Hello. }
