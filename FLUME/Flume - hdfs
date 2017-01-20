@@ -1,0 +1,26 @@
+
+Integrate from telnet to HDFS:
+-----------------------------
+1. For the previous example, instead of logger as the sink have hdfs location as sink.
+2. Create a folder 'flume' in /user/cloudera
+3. In the conf file, do the following changes
+a. In the description for sink, change the type from logger to hdfs
+    a1.sinks.k1.type = hdfs
+
+b. Add the additional parameters for customization
+    #Customize the sink
+    a1.sinks.k1.hdfs.path = /user/cloudera/flume
+    a1.sinks.k1.hdfs.filePrefix = netcat
+    
+    
+4. Run the command 
+  flume -ng agent -name a1 --conf /user/cloudera/flume/ --conf-file /user/cloudera/flume/eghdfs.conf
+  
+  
+5. Open a new terminal and give the command $ telnet localhost 44444
+
+6. Start typing and hit enter
+
+7. Open another terminal and give the command $ hdfs dfs -ls /user/cloudera/flume/
+
+  
