@@ -22,5 +22,27 @@ b. Add the additional parameters for customization
 6. Start typing and hit enter
 
 7. Open another terminal and give the command $ hdfs dfs -ls /user/cloudera/flume/
+-rw-r--r--   1 cloudera cloudera        242 2017-01-20 05:42 flume/netcat.1484919717918
 
-  
+8. View the contents of this file
+
+[cloudera@quickstart ~]$ hdfs dfs -cat flume/netcat.14*
+SEQ!org.apache.hadoop.io.LongWritable"org.apache.hadoop.io.BytesWritable�:	�
+
+As the default file type is sequencefile, the contents are not readable.
+
+
+Repeat Steps 3b to 8 with the following changes
+hdfs.fileType = DataStream
+hdfs.filePrefix = netpre
+hdfs.fileSuffix = ncsuf
+hdfs.inUsePrefix = ncipre
+hdfs.inUseSuffix = ncisuf
+hdfs.rollInterval = 120
+hdfs.rollSize = 2048
+hdfs.rollCount = 15
+
+
+
+
+
