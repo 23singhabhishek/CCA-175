@@ -1,0 +1,102 @@
+
+1. Open the conf file (flume.conf) present in /opt/examples/flume/conf
+
+agent1.sources = source1
+agent1.sinks = solrSink
+agent1.channels = channel1
+
+# Describe/configure source1
+agent1.sources.source1.type = exec
+agent1.sources.source1.command = tail -F /opt/gen_logs/logs/access.log
+
+# Describe solrSink
+agent1.sinks.solrSink.type = org.apache.flume.sink.solr.morphline.MorphlineSolrSink
+agent1.sinks.solrSink.channel = memoryChannel
+agent1.sinks.solrSink.batchSize = 1000
+agent1.sinks.solrSink.batchDurationMillis = 1000
+agent1.sinks.solrSink.morphlineFile = /opt/examples/flume/conf/morphline.conf
+agent1.sinks.solrSink.morphlineId = morphline
+agent1.sinks.solrSink.threadCount = 1
+
+# Use a channel which buffers events to a file
+# -- The component type name, needs to be FILE.
+agent1.channels.channel1.type = FILE
+
+# The maximum size of transaction supported by the channel
+agent1.channels.channel1.capacity = 20000
+agent1.channels.channel1.transactionCapacity = 1000
+
+# Amount of time (in millis) between checkpoints
+agent1.channels.channel1.checkpointInterval 3000
+
+# Max size (in bytes) of a single log file 
+agent1.channels.channel1.maxFileSize = 2146435071
+
+# Bind the source and sink to the channel
+agent1.sources.source1.channels = channel1
+agent1.sinks.solrSink.channel = channel1
+
+2. Change the sink type to hdfs
+
+Type the below command on one terminal
+$ tail -F /opt/gen_logs/logs/access.log       (this command (option -F) refreshes the file with latest data)
+
+Open another terminal and type the below command
+$ start_logs
+
+Now check Terminal 1, the contents are being updated.
+
+To stop the updation, type the below command on terminal 2
+$ stop_logs
+
+
+The command start_logs and stop_logs update the data in the path /opt/gen_logs/logs/access.log 
+
+
+agent1.sources = source1
+#agent1.sinks = solrSink
+agent1.sinks = sink1
+agent1.channels = channel1
+
+# Describe/configure source1
+agent1.sources.source1.type = exec
+agent1.sources.source1.command = tail -F /opt/gen_logs/logs/access.log
+agent1.sources.source1.channel = channel1
+
+# Describe solrSink
+agent1.sinks.sink1.type = hdfs
+agent1.sinks.sink1.channel = channel1
+agent1.sinks.sink1.hdfs.path = /user/cloudera/flume/%y-%m-%d
+agent1.sinks.sink1.hdfs.filePrefix = flume-%y-%m-%d
+agent1.sinks.sink1.hdfs.rollSize = 1048576
+agent1.sinks.sink1.hdfs.rollCount = 100
+agent1.sinks.sink1.hdfs.rollInterval = 100
+agent1.sinks.sink1.hdfs.fileType = DataStream
+agent1.sinks.sink1.hdfs.idleTimeout = 10
+agent1.sinks.sink1.hdfs.useLocalTimeStamp = true
+#agent1.sinks.solrSink.type = org.apache.flume.sink.solr.morphline.MorphlineSolrSink
+
+# Use a channel which buffers events to a file
+# -- The component type name, needs to be FILE.
+agent1.channels.channel1.type = FILE
+
+# The maximum size of transaction supported by the channel
+agent1.channels.channel1.capacity = 20000
+agent1.channels.channel1.transactionCapacity = 1000
+
+# Amount of time (in millis) between checkpoints
+agent1.channels.channel1.checkpointInterval 3000
+
+# Max size (in bytes) of a single log file 
+agent1.channels.channel1.maxFileSize = 2146435071
+
+# Bind the source and sink to the channel
+agent1.sources.source1.channels = channel1
+agent1.sinks.sink1.channel = channel1
+
+
+
+$ flume-ng agent -n agent1 -c flume/conf -f flume/conf/flume.conf
+
+open 2 more terminals and check whether the logs are being updated as seen in the previous step.
+Kill the process (Ctrl + C) and verify if the log details are updated in the hdfs path.
