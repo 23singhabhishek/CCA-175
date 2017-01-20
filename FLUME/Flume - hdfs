@@ -43,6 +43,13 @@ hdfs.rollSize = 2048
 hdfs.rollCount = 15
 
 
+$ flume-ng agent -n a1 -c flume/conf -f flume/conf/eg1.conf
+
+[cloudera@quickstart ~]$ hdfs dfs -ls flume/
+
+-rw-r--r--   1 cloudera cloudera         54 2017-01-20 11:13 flume/netpre.1484939570648ncsuf
+-rw-r--r--   1 cloudera cloudera         53 2017-01-20 11:14 flume/netpre.1484939570649ncsuf
+-rw-r--r--   1 cloudera cloudera         21 2017-01-20 11:14 flume/netpre.1484939570650ncsuf
 
 
 
