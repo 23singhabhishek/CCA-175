@@ -4,3 +4,18 @@ scala> ordRDD.count()                                 Long = 68883
 scala> ordRDD.collect().foreach(println)
 scala> ordRDD.saveAsTextFile("scala/savtxt/orders")
 scala> ordRDD.saveAsObjectFile("scala/savobj/orders")
+
+scala/savtxt/orders
+-------------------
+[cloudera@quickstart ~]$ hdfs dfs -cat scala/savtxt/orders/part*  |head
+1,2013-07-25 00:00:00.0,11599,CLOSED
+2,2013-07-25 00:00:00.0,256,PENDING_PAYMENT
+
+
+scala/savobj/orders
+-------------------
+[cloudera@quickstart ~]$ hdfs dfs -cat scala/savobj/orders/part*  |head
+SEQ!org.apache.hadoop.io.NullWritable"org.apache.hadoop.io.BytesWritable��!fP������Q�Ҭ�ur[Ljava.lang.String;��V��{Gxp
+t$1,2013-07-25 00:00:00.0,11599,CLOSEDt+2,2013-07-25 00:00:00.0,256,PENDING_PAYMENTt&3,2013-07-25 00:00:00.0,12111,COMPLETEt#4,2013-07-25 00:00:00.0,8827,CLOSEDt&5,2013-07-25 00:00:00.0,11318,COMPLETEt%6,2013-07-25 00:00:00.0,7130,COMPLETEt%7,2013-07-25 00:00:00.0,4530,COMPLETEt'8,2013-07-25 00:00:00.0,2911,PROCESSINGt,9,2013-07-25 00:00:00.0,5657,PENDING_PAYMENTt-10,2013-07-25 00:00:00.0,5648,PENDING_PAYMENT����ur[Ljava.lang.String;��V��{Gxp
+
+
