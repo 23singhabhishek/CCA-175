@@ -1,0 +1,6 @@
+
+scala> val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+scala> ordRDD.count()                                 Long = 68883
+scala> ordRDD.collect().foreach(println)
+scala> ordRDD.saveAsTextFile("scala/savtxt/orders")
+scala> ordRDD.saveAsObjectFile("scala/savobj/orders")
