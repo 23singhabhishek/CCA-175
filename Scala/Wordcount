@@ -1,0 +1,6 @@
+val data = sc.textFile("scala/wcount/wordcount.txt")
+val fmap = data.flatMap(x => x.split(" "))
+val datmap = fmap.map(x => (x,1))
+val datred = datmap.reduceByKey((x,y) => x+y)
+datred.saveAsTextFile("scala/wcount/out")
+datred.collect().foreach(println)
