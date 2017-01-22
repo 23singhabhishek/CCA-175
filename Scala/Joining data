@@ -1,0 +1,101 @@
+
+Method 1:
+~~~~~~~~
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+val orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+
+ordRDD.take(5).foreach(println)
+ordRDD:
+1,2013-07-25 00:00:00.0,11599,CLOSED
+2,2013-07-25 00:00:00.0,256,PENDING_PAYMENT
+
+orditmRDD:
+1,1,957,1,299.98,299.98
+2,2,1073,1,199.99,199.99
+
+val omap = ordRDD.map(a => (a.split(",")(0).toInt, a.split(",")(1)))
+val oimap = orditmRDD.map(a => (a.split(",")(1).toInt, a.split(",")(4).toFloat))
+
+omap:
+(1,2013-07-25 00:00:00.0)
+(2,2013-07-25 00:00:00.0)
+
+oimap:
+(1,299.98)
+(2,199.99)
+
+val oimaptot = oimap.reduceByKey((a,b) => a+b)
+oimaptot.sortByKey().take(5).foreach(println)
+
+(1,299.98)                                                                      
+(2,579.98)
+
+val joind = oimaptot.join(omap)
+
+(1,(299.98,2013-07-25 00:00:00.0))                                              
+(2,(579.98,2013-07-25 00:00:00.0))
+
+val ds = joind.map(t => t._1)         ====  1
+val ds = joind.map(t => t._2._1)      ====  199.99
+val ds = joind.map(t => t._2._2)      ====  2013-11-17 00:00:00.0
+
+val joindm = joind.map(t => (t._2._2, 1))
+(2013-07-25 00:00:00.0,1) 
+(2013-07-25 00:00:00.0,1) 
+
+val tordpday = joindm.reduceByKey((a,b) => (a+b))
+(2013-07-25 00:00:00.0,116)                                                     
+(2013-07-26 00:00:00.0,233)
+
+val joindr = joind.map(t => (t._2._2, t._2._1))
+(2013-07-25 00:00:00.0,399.84)                                                  
+(2013-07-25 00:00:00.0,659.97)
+
+val trevpday = joindr.reduceByKey((a,b) => (a+b))
+(2013-07-25 00:00:00.0,68153.83)                                                
+(2013-07-26 00:00:00.0,136520.19)
+
+val finalds = tordpday.join(trevpday)
+(2013-07-25 00:00:00.0,(116,68153.83))                                          
+(2013-07-26 00:00:00.0,(233,136520.19))
+(2013-07-27 00:00:00.0,(175,101074.35))
+(2013-07-28 00:00:00.0,(158,87123.086))
+(2013-07-29 00:00:00.0,(216,137287.11))
+
+
+Method 2:
+~~~~~~~~
+val ordersRDD = sc.textFile("/user/cloudera/sqoop/sqoop-import/orders")
+val orderItemsRDD = sc.textFile("/user/cloudera/sqoop/sqoop-import/order-items")
+ordersRDD.map(rec => (rec.split(",")(0).toInt, rec))
+orderItemsRDD.map(rec => (rec.split(",")(1).toInt, rec))
+
+val ordersParsedRDD = ordersRDD.map(rec => (rec.split(",")(0).toInt, rec))
+val orderItemsParsedRDD = orderItemsRDD.map(rec => (rec.split(",")(1).toInt, rec))
+val ordersJoinOrderItems = orderItemsParsedRDD.join(ordersParsedRDD)
+
+(57436,(143680,57436,1004,1,399.98,399.98,57436,2014-07-22 00:00:00.0,1798,PENDING_PAYMENT))
+(-Key-,(<----------order_items---------->,<--------------------orders-------------------->))
+
+val revenuePerOrderPerDay = ordersJoinOrderItems.map(t => (t._2._2.split(",")(1), t._2._1.split(",")(4).toFloat))
+
+(2013-11-17 00:00:00.0,199.99)
+
+val ordersPerDay = ordersJoinOrderItems.map(rec => rec._2._2.split(",")(1) + "," + rec._1).distinct()
+2013-09-06 00:00:00.0,6917    
+
+val ordersPerDayParsedRDD = ordersPerDay.map(rec => (rec.split(",")(0), 1))
+(2013-09-06 00:00:00.0,1)
+
+val totalOrdersPerDay = ordersPerDayParsedRDD.reduceByKey((x, y) => x + y)
+(2013-10-05 00:00:00.0,184)  
+
+val totalRevenuePerDay = revenuePerOrderPerDay.reduceByKey((total1, total2) => total1 + total2)
+(2013-10-05 00:00:00.0,105913.14)
+
+totalRevenuePerDay.sortByKey().collect().foreach(println)
+
+val finalJoinRDD = totalOrdersPerDay.join(totalRevenuePerDay)
+
+finalJoinRDD.collect().foreach(println)
+(2013-07-25 00:00:00.0,(116,68153.875))  
