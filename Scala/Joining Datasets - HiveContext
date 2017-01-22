@@ -5,4 +5,34 @@ sqlc.sql("set spark.sql.shuffle.partitions = 10")
 
 sc --> SparkContext
 
-sqlc.sc("select * from orders limit 10").collect().foreach(println)
+sqlc.sql("select * from orders limit 10").collect().foreach(println)
+[1,2013-07-25 00:00:00.0,11599,CLOSED]
+[2,2013-07-25 00:00:00.0,256,PENDING_PAYMENT]
+
+
+sqlc.sql("select order_date, count(distinct(order_id)), sum(order_item_subtotal) from orders a,  \
+order_items b where order_id =order_item_order_id group by order_date order by order_date").take(10).foreach(println)
+[2013-07-25 00:00:00.0,116,68153.82999999999]                                   
+[2013-07-26 00:00:00.0,233,136520.17000000025]
+[2013-07-27 00:00:00.0,175,101074.34000000008]
+[2013-07-28 00:00:00.0,158,87123.08000000007]
+[2013-07-29 00:00:00.0,216,137287.09000000026]
+[2013-07-30 00:00:00.0,182,102745.62000000011]
+[2013-07-31 00:00:00.0,209,131878.0600000001]
+[2013-08-01 00:00:00.0,212,129001.62000000027]
+[2013-08-02 00:00:00.0,186,109347.00000000003]
+[2013-08-03 00:00:00.0,159,95266.89000000014]
+
+sqlc.sql("select order_date, count(distinct(order_id)), round(sum(order_item_subtotal),2) from orders a,  \
+order_items b where order_id =order_item_order_id group by order_date order by order_date").take(10).foreach(println)
+
+[2013-07-25 00:00:00.0,116,68153.83]                                            
+[2013-07-26 00:00:00.0,233,136520.17]
+[2013-07-27 00:00:00.0,175,101074.34]
+[2013-07-28 00:00:00.0,158,87123.08]
+[2013-07-29 00:00:00.0,216,137287.09]
+[2013-07-30 00:00:00.0,182,102745.62]
+[2013-07-31 00:00:00.0,209,131878.06]
+[2013-08-01 00:00:00.0,212,129001.62]
+[2013-08-02 00:00:00.0,186,109347.0]
+[2013-08-03 00:00:00.0,159,95266.89]
