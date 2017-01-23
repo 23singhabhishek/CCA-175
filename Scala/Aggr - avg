@@ -1,0 +1,35 @@
+Average revenue per day
+
+val ordersRDD = sc.
+  textFile("/user/cloudera/sqoop_import/orders")
+val orderItemsRDD = sc.
+  textFile("/user/cloudera/sqoop_import/order_items")
+
+val ordersParsedRDD = ordersRDD.
+  map(rec => (rec.split(",")(0), rec))
+val orderItemsParsedRDD = orderItemsRDD.
+  map(rec => (rec.split(",")(1), rec))
+
+val ordersJoinOrderItems = orderItemsParsedRDD.
+  join(ordersParsedRDD)
+val ordersJoinOrderItemsMap = ordersJoinOrderItems.
+  map(t => 
+    ((t._2._2.split(",")(1), t._1), t._2._1.split(",")(4).
+    toFloat))
+
+val revenuePerDayPerOrder = ordersJoinOrderItemsMap.
+  reduceByKey((acc, value) => acc + value)
+val revenuePerDayPerOrderMap = revenuePerDayPerOrder.
+  map(rec => (rec._1._1, rec._2))
+
+val revenuePerDay = revenuePerDayPerOrderMap.
+  aggregateByKey((0.0, 0))(
+    (acc, revenue) => (acc._1 + revenue, acc._2 + 1), 
+    (total1, total2) => 
+      (total1._1 + total2._1, total1._2 + total2._2) 
+  )
+
+revenuePerDay.collect().foreach(println)
+
+val avgRevenuePerDay = revenuePerDay.
+  map(x => (x._1, x._2._1/x._2._2))
