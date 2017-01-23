@@ -4,8 +4,36 @@ val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 val map1 = ordRDD.map(t => (t.split(",")(3),1))
 val cnt = map1.countByKey()
 
-val map1 = ordRDD.map(t => (t.split(",")(3),x))
+map1:
+----
+(CLOSED,1)
+(PENDING_PAYMENT,1)
+
+cnt:
+---
+scala> val cnt = map1.countByKey()
+cnt: scala.collection.Map[String,Long] = Map(PAYMENT_REVIEW -> 729, CLOSED -> 7556, SUSPECTED_FRAUD -> 1558, PROCESSING -> 8275, COMPLETE -> 22899, PENDING -> 7610, PENDING_PAYMENT -> 15030, ON_HOLD -> 3798, CANCELED -> 1428)
+
+
+val map1 = ordRDD.map(t => (t.split(",")(3),3))
 map1.countByKey().foreach(println)
+
+map1:
+----
+(CLOSED,3)
+(PENDING_PAYMENT,3)
+
+countByKey():
+-----------
+(PAYMENT_REVIEW,729)
+(CLOSED,7556)
+(SUSPECTED_FRAUD,1558)
+(PROCESSING,8275)
+(COMPLETE,22899)
+(PENDING,7610)
+(PENDING_PAYMENT,15030)
+(ON_HOLD,3798)
+(CANCELED,1428)
 
 
 groupByKey() : No.of orders by status
@@ -13,3 +41,28 @@ groupByKey() : No.of orders by status
 val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 val map1 = ordRDD.map(t => (t.split(",")(3),1))
 val ordstat = map1.groupByKey().map(t => (t._1, t._2.sum))
+
+ordstat.collect().foreach(println)
+
+(CLOSED,7556)
+(CANCELED,1428)
+(PAYMENT_REVIEW,729)
+(COMPLETE,22899)
+(PENDING_PAYMENT,15030)
+(PENDING,7610)
+(PROCESSING,8275)
+(ON_HOLD,3798)
+(SUSPECTED_FRAUD,1558)
+
+
+scala> ordRDD.map(t => (t.split(",")(3),1)).groupByKey().map(t => (t._1,t._2.sum)).collect().foreach(println)
+(CLOSED,7556)                                                                   
+(CANCELED,1428)
+(PAYMENT_REVIEW,729)
+(COMPLETE,22899)
+(PENDING_PAYMENT,15030)
+(PENDING,7610)
+(PROCESSING,8275)
+(ON_HOLD,3798)
+(SUSPECTED_FRAUD,1558)
+
