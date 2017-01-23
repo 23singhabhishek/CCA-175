@@ -1,0 +1,25 @@
+Calculate the Count: (Total number of orders in order dataset)
+--------------------------------------------------------------
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+ordRDD.count()
+                    OR
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders").count()
+                    OR
+sc.textFile("sqoop/sqoop-import/orders").count()
+
+Long = 68883
+
+Calculate the sum: (Total revenue from order-items)
+---------------------------------------------------
+val orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+val map1 = orditmRDD.map(t => (t.split(",")(4).toFloat))
+val totrev = map1.reduce((a,b) => (a+b))
+
+val map1 = orditmRDD.map(t => (t.split(",")(4).toDouble))
+val totrev = map1.reduce((a,b) => (a+b))
+
+
+
+                    
+
+
