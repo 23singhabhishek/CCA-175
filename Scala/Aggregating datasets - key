@@ -35,7 +35,7 @@ countByKey():
 (ON_HOLD,3798)
 (CANCELED,1428)
 
-
+========================================================================================================================================
 groupByKey() : No.of orders by status
 ------------
 val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
@@ -65,4 +65,30 @@ scala> ordRDD.map(t => (t.split(",")(3),1)).groupByKey().map(t => (t._1,t._2.sum
 (PROCESSING,8275)
 (ON_HOLD,3798)
 (SUSPECTED_FRAUD,1558)
+
+========================================================================================================================================
+
+reduceByKey():
+------------
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+val map1 = ordRDD.map(t => (t.split(",")(3),1))
+val red1 = map1.reduceByKey((a,b) => (a+b))
+
+
+
+aggregateByKey():
+----------------
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+val map1 = ordRDD.map(t => (t.split(",")(3),1))
+val ordstat = map1.aggregateByKey((0), (acc,val) => acc +1, (acc,val) => acc+ val)
+
+
+
+
+combineByKey() :
+--------------
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+val map1 = ordRDD.map(t => (t.split(",")(3),1))
+val ordstat = map1.combineByKey(value => 1, (acc: Int, value: Int) => acc + value, (acc:Int, value: Int) => acc + value)
+
 
