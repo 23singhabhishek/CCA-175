@@ -1,0 +1,15 @@
+countByKey() : No. of orders by status
+------------
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+val map1 = ordRDD.map(t => (t.split(",")(3),1))
+val cnt = map1.countByKey()
+
+val map1 = ordRDD.map(t => (t.split(",")(3),x))
+map1.countByKey().foreach(println)
+
+
+groupByKey() : No.of orders by status
+------------
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+val map1 = ordRDD.map(t => (t.split(",")(3),1))
+val ordstat = map1.groupByKey().map(t => (t._1, t._2.sum))
