@@ -73,22 +73,65 @@ reduceByKey():
 val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 val map1 = ordRDD.map(t => (t.split(",")(3),1))
 val red1 = map1.reduceByKey((a,b) => (a+b))
+scala> red1.collect().foreach(println)
+(CLOSED,7556)                                                                   
+(CANCELED,1428)
+(PAYMENT_REVIEW,729)
+(COMPLETE,22899)
+(PENDING_PAYMENT,15030)
+(PENDING,7610)
+(ON_HOLD,3798)
+(PROCESSING,8275)
+(SUSPECTED_FRAUD,1558)
 
 
+sc.textFile("sqoop/sqoop-import/orders").map(t => (t.split(",")(3),1)).reduceByKey((a,b) => (a+b)).collect().foreach(println)
+
+========================================================================================================================================
 
 aggregateByKey():
 ----------------
 val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 val map1 = ordRDD.map(t => (t.split(",")(3),1))
-val ordstat = map1.aggregateByKey((0), (acc,val) => acc +1, (acc,val) => acc+ val)
+val ordstat = map1.aggregateByKey(0)((acc,val) => acc +1, (acc,val) => acc+ val)
 
 
+sc.textFile("sqoop/sqoop-import/orders").map(t => (t.split(",")(3),1)).aggregateByKey(0)((a,b) => a+1, (a,b) => a+b).collect().foreach(println)
+sc.textFile("sqoop/sqoop-import/orders").map(t => (t.split(",")(3),t)).aggregateByKey(0)((a,b) => a+1, (a,b) => a+b).collect().foreach(println)
 
+
+(CLOSED,7556)
+(CANCELED,1428)
+(PAYMENT_REVIEW,729)
+(COMPLETE,22899)
+(PENDING_PAYMENT,15030)
+(PENDING,7610)
+(ON_HOLD,3798)
+(PROCESSING,8275)
+(SUSPECTED_FRAUD,1558)
+
+========================================================================================================================================
 
 combineByKey() :
 --------------
 val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 val map1 = ordRDD.map(t => (t.split(",")(3),1))
 val ordstat = map1.combineByKey(value => 1, (acc: Int, value: Int) => acc + value, (acc:Int, value: Int) => acc + value)
+
+scala> sc.textFile("sqoop/sqoop-import/orders").map(t => (t.split(",")(3),1)).combineByKey(value => 1, (a: Int,b: Int) => a+b, (a:Int,b:Int) => a+b).collect().foreach(println)
+(CLOSED,7556)
+(CANCELED,1428)
+(PAYMENT_REVIEW,729)
+(COMPLETE,22899)
+(PENDING_PAYMENT,15030)
+(PENDING,7610)
+(ON_HOLD,3798)
+(PROCESSING,8275)
+(SUSPECTED_FRAUD,1558)
+
+sc.textFile("sqoop/sqoop-import/orders").map(t => (t.split(",")(3),1)).combineByKey(value => 1, (a: Int,b: Int) => a+1, (a:Int,b:Int) => a+b).collect().foreach(println)
+===> same result as above
+
+scala> sc.textFile("sqoop/sqoop-import/orders").map(t => (t.split(",")(3),0)).combineByKey(value => 1, (a: Int,b: Int) => a+1, (a:Int,b:Int) => a+b).collect().foreach(println)
 
 
