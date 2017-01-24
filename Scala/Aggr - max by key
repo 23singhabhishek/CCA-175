@@ -1,28 +1,25 @@
+Get Customer_id with maximum revenue for each day
+=================================================
 
-val ordersRDD = sc.
-  textFile("/user/cloudera/sqoop_import/orders")
-val orderItemsRDD = sc.
-  textFile("/user/cloudera/sqoop_import/order_items")
+val ordersRDD = sc.textFile("/user/cloudera/sqoop/sqoop-import/orders")
+val orderItemsRDD = sc.textFile("/user/cloudera/sqoop/sqoop-import/order-items")
 
-val ordersParsedRDD = ordersRDD.
-  map(rec => (rec.split(",")(0), rec))
-val orderItemsParsedRDD = orderItemsRDD.
-  map(rec => (rec.split(",")(1), rec))
+val ordersParsedRDD = ordersRDD.map(rec => (rec.split(",")(0), rec))
+val orderItemsParsedRDD = orderItemsRDD.map(rec => (rec.split(",")(1), rec))
+val ordersJoinOrderItems = orderItemsParsedRDD.join(ordersParsedRDD)
+val ordersPerDayPerCustomer = ordersJoinOrderItems.map(rec => ((rec._2._2.split(",")(1), rec._2._2.split(",")(2)), rec._2._1.split(",")(4).toFloat))
+val revenuePerDayPerCustomer = ordersPerDayPerCustomer.reduceByKey((x, y) => x + y)
 
-val ordersJoinOrderItems = orderItemsParsedRDD.
-  join(ordersParsedRDD)
-val ordersPerDayPerCustomer = ordersJoinOrderItems.
-  map(rec => (
-    (rec._2._2.split(",")(1), rec._2._2.split(",")(2)),
-      rec._2._1.split(",")(4).toFloat)
-  )
-val revenuePerDayPerCustomer = ordersPerDayPerCustomer.
-  reduceByKey((x, y) => x + y)
+val revenuePerDayPerCustomerMap = revenuePerDayPerCustomer.map(rec => (rec._1._1, (rec._1._2, rec._2)))
+val topCustomerPerDaybyRevenue = revenuePerDayPerCustomerMap.reduceByKey((x, y) => (if(x._2 >= y._2) x else y))
 
-val revenuePerDayPerCustomerMap = revenuePerDayPerCustomer.
-  map(rec => (rec._1._1, (rec._1._2, rec._2)))
-val topCustomerPerDaybyRevenue = revenuePerDayPerCustomerMap.
-  reduceByKey((x, y) => (if(x._2 >= y._2) x else y))
+scala> topCustomerPerDaybyRevenue.sortByKey().take(5).foreach(println)
+(2013-07-25 00:00:00.0,(11941,1649.8))                                          
+(2013-07-26 00:00:00.0,(32,2009.75))
+(2013-07-27 00:00:00.0,(11491,1379.88))
+(2013-07-28 00:00:00.0,(5738,1499.87))
+(2013-07-29 00:00:00.0,(5182,1389.8601))
+
 
 #Using regular function
 def findMax(x: (String, Float), y: (String, Float)): (String, Float) = {
@@ -34,3 +31,41 @@ def findMax(x: (String, Float), y: (String, Float)): (String, Float) = {
 
 val topCustomerPerDaybyRevenue = revenuePerDayPerCustomerMap.
   reduceByKey((x, y) => findMax(x, y))
+
+
+OR
+
+val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
+val orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
+val map1 =  ordRDD.map(t => (t.split(",")(0).toInt, t))
+val map2 =  orditmRDD.map(t => (t.split(",")(1).toInt, t.split(",")(4).toFloat))
+val map2s = map2.reduceByKey((a,b) => (a+b))
+val join1 =  map2s.join(map1)
+val join1m = join1.map(t => ((t._2._2.split(",")(1)), (t._2._2.split(",")(2), t._2._1)))
+val maxc = join1m.reduceByKey((a,b) => (if(a._2 >= b._2) a else b))
+
+The below command cannot be used as the comparison is only considered w.r.t the value parameter. So, the value is just
+(customer id, tot rev). Hence a._2 and b._2 should be compared
+scala> val maxc = join1m.reduceByKey((a,b) => (if(a._2._2 >= b._2._2) a._2 else b._2))
+
+scala> maxc.sortByKey().take(5).foreach(println)
+(2013-07-25 00:00:00.0,(11941,1649.8))
+(2013-07-26 00:00:00.0,(2962,1369.8099)) ******
+(2013-07-27 00:00:00.0,(11491,1379.88))
+(2013-07-28 00:00:00.0,(5738,1499.87))
+(2013-07-29 00:00:00.0,(2632,1389.8601))
+
+
+mysql> select order_date, order_customer_id, sum(order_item_subtotal) as sumr from orders, order_items where order_id = order_item_order_id group by order_date, order_customer_id ;
+
+
+mysql> select order_date, order_customer_id, max(sumr) from orders, order_items 
+
+where order_id = order_item_order_id 
+(select sum(order_item_subtotal) as sumr from orders, order_items 
+where order_id = order_item_order_id group by order_date, order_customer_id)
+
+select order_date, order_customer_id, sum(order_item_subtotal) as sumr from orders, order_items 
+where order_id = order_item_order_id group by order_date, order_customer_id 
+having sumr = ;
+
