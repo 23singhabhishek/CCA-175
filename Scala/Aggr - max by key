@@ -39,21 +39,28 @@ val ordRDD = sc.textFile("sqoop/sqoop-import/orders")
 val orditmRDD = sc.textFile("sqoop/sqoop-import/order-items")
 val map1 =  ordRDD.map(t => (t.split(",")(0).toInt, t))
 val map2 =  orditmRDD.map(t => (t.split(",")(1).toInt, t.split(",")(4).toFloat))
-val map2s = map2.reduceByKey((a,b) => (a+b))
-val join1 =  map2s.join(map1)
-val join1m = join1.map(t => ((t._2._2.split(",")(1)), (t._2._2.split(",")(2), t._2._1)))
+val join1 =  map2.join(map1)
+val join1s = join1.map(t => ((t._2._2.split(",")(1), t._2._2.split(",")(2)), t._2._1))
+val map2s = join1s.reduceByKey((a,b) => (a+b))
+val join1m = map2s.map(t => ((t._1._1), (t._1._2, t._2)))
 val maxc = join1m.reduceByKey((a,b) => (if(a._2 >= b._2) a else b))
 
+The revenue should be summed only after join as the use case involves calculating revenue per cust (and not by order)
 The below command cannot be used as the comparison is only considered w.r.t the value parameter. So, the value is just
 (customer id, tot rev). Hence a._2 and b._2 should be compared
 scala> val maxc = join1m.reduceByKey((a,b) => (if(a._2._2 >= b._2._2) a._2 else b._2))
 
+val dsn1 = sc.textFile("sqoop/sqoop-import/orders").map(t => (t.split(",")(0).toInt, t))
+val dsn2 = sc.textFile("sqoop/sqoop-import/order-items").map(t => (t.split(",")(1).toInt, t.split(",")(4).toFloat))
+val maxc = dsn2.join(dsn1).map(t => ((t._2._2.split(",")(1), t._2._2.split(",")(2)), t._2._1)).reduceByKey((a,b) => (a+b)).map(t => ((t._1._1), (t._1._2, t._2))).reduceByKey((a,b) => (if(a._2 >= b._2) a else b))
+
 scala> maxc.sortByKey().take(5).foreach(println)
-(2013-07-25 00:00:00.0,(11941,1649.8))
-(2013-07-26 00:00:00.0,(2962,1369.8099)) ******
+(2013-07-25 00:00:00.0,(11941,1649.8))                                          
+(2013-07-26 00:00:00.0,(32,2009.75))
 (2013-07-27 00:00:00.0,(11491,1379.88))
 (2013-07-28 00:00:00.0,(5738,1499.87))
-(2013-07-29 00:00:00.0,(2632,1389.8601))
+(2013-07-29 00:00:00.0,(5182,1389.8601))
+
 
 
 mysql> select order_date, order_customer_id, sum(order_item_subtotal) as sumr from orders, order_items where order_id = order_item_order_id group by order_date, order_customer_id ;
