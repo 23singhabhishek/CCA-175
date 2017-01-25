@@ -63,16 +63,15 @@ scala> maxc.sortByKey().take(5).foreach(println)
 
 
 
-mysql> select order_date, order_customer_id, sum(order_item_subtotal) as sumr from orders, order_items where order_id = order_item_order_id group by order_date, order_customer_id ;
-
-
-mysql> select order_date, order_customer_id, max(sumr) from orders, order_items 
-
-where order_id = order_item_order_id 
-(select sum(order_item_subtotal) as sumr from orders, order_items 
-where order_id = order_item_order_id group by order_date, order_customer_id)
-
-select order_date, order_customer_id, sum(order_item_subtotal) as sumr from orders, order_items 
-where order_id = order_item_order_id group by order_date, order_customer_id 
-having sumr = ;
+mysql> select * from (
+(select a1.order_date as c1, a1.order_customer_id as c2, sum(b1.order_item_subtotal) as tot1 
+  from orders a1, order_items b1 where a1.order_id = b1.order_item_order_id  
+  group by a1.order_date, a1.order_customer_id) as c), 
+  (select d.a as e1, max(sumr) as max1  
+    from (select order_date as a, order_customer_id as b, sum(order_item_subtotal) as sumr  
+        from orders, order_items where order_id = order_item_order_id  
+        group by order_date, order_customer_id) as d group by d.a ) as e 
+        where c.tot1 = e.max1 and c.c1 = e.e1;
+        
+  The above query takes multiple entries of customer IDs having the same revenue (highest) for the day.
 
