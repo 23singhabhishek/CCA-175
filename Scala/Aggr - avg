@@ -10,8 +10,9 @@ val map1 = ordRDD.map(t => (t.split(",")(0).toInt, t.split(",")(1)))
 val map2 =  orditmRDD.map(t => (t.split(",")(1).toInt, t.split(",")(4).toFloat))
 val map2r = map2.reduceByKey((a,b) => (a+b))
 val joind = map1.join(map2r)
-val joindm =  joind.map(t => ((t._2._1), (t._2._2, t._1)))
-val fin = joindm.aggregateByKey((0.0,0))((a,b) => (a._1 + b._1, b._2 + 1), (t1 , t2) => (t1._1 + t2._1, t1._2 + t2._2))
+val joindm =  joind.map(t => ((t._2._1), (t._2._2)))
+val fin = joindm.aggregateByKey((0.0,0))((a,b) => (a._1 + b, a._2 + 1), (t1 , t2) => (t1._1 + t2._1, t1._2 + t2._2))
+
 
 
 
