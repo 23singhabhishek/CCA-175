@@ -1,52 +1,71 @@
-
-sqoop import \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_dba --password cloudera \
---target-dir sqoop/sqoop-import/departments \
---table departments 
-
+Default field delimited is comma ','  and line delimiter is newline '\n'
+========================================================================
+1. Default:
+   -------
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--target-dir sqoop/sqoop-import/departments --table departments 
 [cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/departments/part*
 2,Fitness
 3,Footwear
 
-sqoop import \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
---target-dir sqoop/sqoop-import/dptdelim --table departments \
---enclosed-by '^'  --fields-terminated-by '-'  --lines-terminated-by '|'
-
+2. User specified delimiters:
+   -------------------------
+sqoop import  --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
+--target-dir sqoop/sqoop-import/dptdelim --table departments --enclosed-by '^'  --fields-terminated-by '-'  --lines-terminated-by '|'
 [cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
 ^2^-^Fitness^|^3^-^Footwear^|^4^-^Apparel^|^5^-^Golf^|^6^-^Outdoors^|^7^-^Fan Shop^|
 
+3. Multiple special characters:
+   ---------------------------
 sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
 --target-dir sqoop/sqoop-import/dptdelim --table departments \
 --enclosed-by '^'  --fields-terminated-by '-'  --lines-terminated-by '""""""""""""""""""""""""'
-
 [cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
 ^2^-^Fitness^"^3^-^Footwear^"^4^-^Apparel^"^5^-^Golf^"^6^-^Outdoors^"^7^-^Fan Shop^"
 
+4. Single quote:
+   ------------
 sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
---target-dir sqoop/sqoop-import/dptdelim --table departments \
---enclosed-by "'"  --fields-terminated-by '-'  --lines-terminated-by '||'
-
+--target-dir sqoop/sqoop-import/dptdelim --table departments --enclosed-by "'"  --fields-terminated-by '-'  --lines-terminated-by '||'
 [cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
 '2'-'Fitness'|'3'-'Footwear'|'4'-'Apparel'|'5'-'Golf'|'6'-'Outdoors'|'7'-'Fan Shop'|
 
+5. tab:
+   ---
 sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
---target-dir sqoop/sqoop-import/dptdelim --table departments --enclosed-by "'"  
---fields-terminated-by '-'  --lines-terminated-by '\t'
-
+--target-dir sqoop/sqoop-import/dptdelim --table departments --enclosed-by "'"  --fields-terminated-by '-'  --lines-terminated-by '\t'
 [cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
 '2'-'Fitness'	'3'-'Footwear'	'4'-'Apparel'	'5'-'Golf'	'6'-'Outdoors'	'7'-'Fan Shop'
 
+6. Double  quotes:
+   --------------
 sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
---target-dir sqoop/sqoop-import/dptdelim --table departments --enclosed-by '"'  --fields-terminated-by '-'  \
---lines-terminated-by '\t'
+--target-dir sqoop/sqoop-import/dptdelim --table departments --enclosed-by '"'  --fields-terminated-by '-' --lines-terminated-by '\t'
 [cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
 "2"-"Fitness"	"3"-"Footwear"	"4"-"Apparel"	"5"-"Golf"	"6"-"Outdoors"	"7"-"Fan Shop"	
+
+7. warehouse directory:
+   -------------------
+sqoop import  --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba  --password cloudera  --m 5 \
+--warehouse-dir /user/cloudera/sqoop/sqoop-import/term  --table categories --fields-terminated-by '|'  --lines-terminated-by '\t'
+o/p: 1|2|Football	2|2|Soccer	3|2|Baseball & Softball	4|2|Basketball	5|2|Lacrosse	6|2|Tennis & Racquet	7|2|Hockey	8|2|More Sports	9|3|Cardio Equipment	10|3|Strength Training	11|3|Fitness Accessories	12|3|Boxing & MMA	13|3|Electronics	14|3|Yoga & Pilates	15|3|Training by Sport	16|3|As Seen on  TV!	17|4|Cleats	18|4|Men's Footwear	19|4|Women's Footwear	20|4|Kids' Footwear	21|4|Featured Shops	22|4|Accessories	23|5|Men's Apparel	24|5|Women's Apparel25|5|Boys' Apparel	26|5|Girls' Apparel	27|5|Accessories	28|5|Top Brands	29|5|Shop By Sport	30|6|Men's Golf Clubs	31|6|Women's Golf Clubs	32|6|Golf Apparel	33|6|Golf Shoes	34|6|Golf Bags & Carts	35|6|Golf Gloves	36|6|Golf Balls	37|6|Electronics	38|6|Kids' Golf Clubs	39|6|Team Shop	40|6|Accessories	41|6|Trade-In	42|7|Bike & Skate Shop	43|7|Camping & Hiking	44|7|Hunting & Shooting	45|7|Fishing	46|7|Indoor/Outdoor Games	47|7|Boating	48|7|Water Sports	49|8|MLB	50|8|NFL	51|8|NHL	52|8|NBA	53|8|NCAA	54|8|MLS	55|8|International Soccer	56|8|World Cup Shop	57|8|MLB Players	58|8|NFL Players	
+
+Note: warehouse-dir creates a directory with same name as the table name (i.e: categories). So, for the above command 
+the folder created would be ' /user/cloudera/sqoop/sqoop-import/term/categories). Two directories :- term and categories have been
+created
+
+8. target-dir:
+   ----------
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba  --password cloudera  --m 5 \
+--target-dir /user/cloudera/sqoop/sqoop-import/termtgt --table categories --fields-terminated-by '#'  --lines-terminated-by '\0'
+o/p: 1#2#Football2#2#Soccer3#2#Baseball & Softball4#2#Basketball5#2#Lacrosse6#2#Tennis & Racquet7#2#Hockey8#2#More Sports9#3#Cardio Equipment10#3#Strength Training11#3#Fitness Accessories12#3#Boxing & MMA13#3#Electronics14#3#Yoga & Pilates15#3#Training by Sport16#3#As Seen on  TV!17#4#Cleats18#4#Men's Footwear19#4#Women's Footwear20#4#Kids' Footwear21#4#Featured Shops22#4#Accessories23#5#Men's Apparel24#5#Women's Apparel25#5#Boys' Apparel26#5#Girls' Apparel27#5#Accessories28#5#Top Brands29#5#Shop By Sport30#6#Men's Golf Clubs31#6#Women's Golf Clubs32#6#Golf Apparel33#6#Golf Shoes34#6#Golf Bags & Carts35#6#Golf Gloves36#6#Golf Balls37#6#Electronics38#6#Kids' Golf Clubs39#6#Team Shop40#6#Accessories41#6#Trade-In42#7#Bike & Skate Shop43#7#Camping & Hiking44#7#Hunting & Shooting45#7#Fishing46#7#Indoor/Outdoor Games47#7#Boating48#7#Water Sports49#8#MLB50#8#NFL51#8#NHL52#8#NBA53#8#NCAA54#8#MLS55#8#International Soccer56#8#World Cup Shop57#8#MLB Players58#8#NFL Players
+
 
 
 import to hive:
 --------------
+1. Default delimiter:
+   -----------------
 Sqoop import along with hive table creation without specifying the field delimiters, line delimiters would have the field
 delimiter as \u0001 and line delimiter as \n
 
@@ -61,8 +80,24 @@ OK
 2	2013-07-25 00:00:00.0	256	PENDING_PAYMENT
 
 
-
+During sqoop import to existing hive tables, if no delimiters\the delimiters mentioned in the command do not match the ones defined 
+in the hive table definition then nulls would be inserted into the table. ***** (check)
 
 sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
---table departments --hive-import --create-hive-table --hive-home /uer/hive/warehouse 
+--table departments --hive-import --hive-home /user/hive/warehouse --hive-table departments \
+--fields-terminated-by ',' --lines terminated-by '\n'
+
+
+sqoop export --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username retail_dba \
+  --password cloudera \
+  --table departments_test \
+  --export-dir /user/hive/warehouse/departments_test \
+  --input-fields-terminated-by '\001' \
+  --input-lines-terminated-by '\n' \
+  --num-mappers 2 \
+  --batch \
+  --outdir java_files \
+  --input-null-string nvl \
+  --input-null-non-string -1
 
