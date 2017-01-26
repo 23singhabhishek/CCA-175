@@ -146,7 +146,29 @@ drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:35 /user/hive/wareho
 drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:36 /user/hive/warehouse/sqpimpall.db/orders
 drwxrwxrwx   - cloudera supergroup          0 2017-01-19 01:38 /user/hive/warehouse/sqpimpall.db/products
    
-7. using compression codec
+7. import using avro format
+   ------------------------
+
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba \
+--password cloudera \
+--warehouse-dir sqoop/sqoop-import/avro/
+--as-avrodatafile
+--m 2
+
+
+8. exclude tables
+   --------------
+sqoop import-all-tables \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba  \
+--password cloudera  \
+--warehouse-dir sqoop/sqoop-import/excl 
+--m 2
+--exclude-tables products
+
+9. using compression codec
    -----------------------
 --compression-codec <c>	Use Hadoop codec (default gzip)
 ========================================================
@@ -164,10 +186,11 @@ sqoop import-all-tables  \
 --outdir java_files 
 
 
-8. using --autoreset-to-one-mapper option
+10. using --autoreset-to-one-mapper option
    --------------------------------------
- --autoreset to one mapper : the no of mappers is set to one only if the sqoop table is without any primary key
-==============================================================================================================
+ --autoreset to one mapper : the no of mappers is set to one only if the sqoop table is without any primary key else the default count
+ of 4 is considered
+======================================================================================================================================
 sqoop import-all-tables \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba  \
@@ -185,12 +208,6 @@ Found 5 items
 -rw-r--r--   1 cloudera cloudera      43660 2017-01-03 10:32 /user/cloudera/sqoop/sqoop-import/impallat/products/part-m-00001
 -rw-r--r--   1 cloudera cloudera      42195 2017-01-03 10:32 /user/cloudera/sqoop/sqoop-import/impallat/products/part-m-00002
 -rw-r--r--   1 cloudera cloudera      46719 2017-01-03 10:32 /user/cloudera/sqoop/sqoop-import/impallat/products/part-m-00003
-
-
-
-
-
-
 
 
 
