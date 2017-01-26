@@ -5,17 +5,64 @@ sqoop import \
 --target-dir sqoop/sqoop-import/departments \
 --table departments 
 
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/departments/part*
+2,Fitness
+3,Footwear
+
 sqoop import \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
---username retail_dba --password cloudera \
---target sqoop/sqoop-import/dptdelim \
---table departments \
---enclosed-by \^  \
---fields-terminated-by -  \
---lines-terminated-by \n\n
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
+--target-dir sqoop/sqoop-import/dptdelim --table departments \
+--enclosed-by '^'  --fields-terminated-by '-'  --lines-terminated-by '|'
+
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
+^2^-^Fitness^|^3^-^Footwear^|^4^-^Apparel^|^5^-^Golf^|^6^-^Outdoors^|^7^-^Fan Shop^|
+
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
+--target-dir sqoop/sqoop-import/dptdelim --table departments \
+--enclosed-by '^'  --fields-terminated-by '-'  --lines-terminated-by '""""""""""""""""""""""""'
+
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
+^2^-^Fitness^"^3^-^Footwear^"^4^-^Apparel^"^5^-^Golf^"^6^-^Outdoors^"^7^-^Fan Shop^"
+
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
+--target-dir sqoop/sqoop-import/dptdelim --table departments \
+--enclosed-by "'"  --fields-terminated-by '-'  --lines-terminated-by '||'
+
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
+'2'-'Fitness'|'3'-'Footwear'|'4'-'Apparel'|'5'-'Golf'|'6'-'Outdoors'|'7'-'Fan Shop'|
+
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
+--target-dir sqoop/sqoop-import/dptdelim --table departments --enclosed-by "'"  
+--fields-terminated-by '-'  --lines-terminated-by '\t'
+
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
+'2'-'Fitness'	'3'-'Footwear'	'4'-'Apparel'	'5'-'Golf'	'6'-'Outdoors'	'7'-'Fan Shop'
+
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  --username retail_dba --password cloudera \
+--target-dir sqoop/sqoop-import/dptdelim --table departments --enclosed-by '"'  --fields-terminated-by '-'  \
+--lines-terminated-by '\t'
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-import/dptdelim/part*
+"2"-"Fitness"	"3"-"Footwear"	"4"-"Apparel"	"5"-"Golf"	"6"-"Outdoors"	"7"-"Fan Shop"	
+
+
+import to hive:
+--------------
+Sqoop import along with hive table creation without specifying the field delimiters, line delimiters would have the field
+delimiter as \u0001 and line delimiter as \n
+
+
+hive> dfs -cat /user/hive/warehouse/orders/par*;
+688822014-07-22 00:00:00.010000ON_HOLD
+688832014-07-23 00:00:00.05533COMPLETE
+
+hive> select * from orders limit 5;
+OK
+1	2013-07-25 00:00:00.0	11599	CLOSED
+2	2013-07-25 00:00:00.0	256	PENDING_PAYMENT
 
 
 
 
-import to hive
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table departments --hive-import --create-hive-table --hive-home /uer/hive/warehouse 
 
