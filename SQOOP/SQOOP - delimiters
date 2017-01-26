@@ -1,1 +1,21 @@
 
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba --password cloudera \
+--target-dir sqoop/sqoop-import/departments \
+--table departments 
+
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
+--username retail_dba --password cloudera \
+--target sqoop/sqoop-import/dptdelim \
+--table departments \
+--enclosed-by \^  \
+--fields-terminated-by -  \
+--lines-terminated-by \n\n
+
+
+
+
+import to hive
+
