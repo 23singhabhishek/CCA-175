@@ -66,7 +66,7 @@ import to hive:
 --------------
 1. Default delimiter:
    -----------------
-Sqoop import along with hive table creation without specifying the field delimiters, line delimiters would have the field
+Sqoop import along with hive table creation without specifying the field/line delimiters then the table would have the field
 delimiter as \u0001 and line delimiter as \n
 
 
@@ -80,24 +80,99 @@ OK
 2	2013-07-25 00:00:00.0	256	PENDING_PAYMENT
 
 
+2. Delimiters different than the existing:
+   -------------------------------------
 During sqoop import to existing hive tables, if no delimiters\the delimiters mentioned in the command do not match the ones defined 
-in the hive table definition then nulls would be inserted into the table. ***** (check)
+in the hive table definition then nulls would be inserted into the table. 
 
-sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+In the below example, the table departments in hive was created using sqoop import command. Hence the field delimiter is
+\u0001 and line delimiter is \n. Now, run the sqoop command loading the departments table but specifying the field delimiter
+as ',' and line delimiter as '\n'. It is seen that nulls have been inserted to the table. The file represents the correct
+data but the table is not able to display it correctly. (2.i)
+Run the same sqoop import command but without specifying the delimiter values. Correct values are inserted to the table. (2.ii)
+
+
+i. sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
 --table departments --hive-import --hive-home /user/hive/warehouse --hive-table departments \
---fields-terminated-by ',' --lines terminated-by '\n'
+--fields-terminated-by ',' --lines-terminated-by '\n'
+
+hive> select * from departments;
+OK
+2	Fitness
+3	Footwear
+
+hive> select * from departments;
+OK
+2	Fitness
+3	Footwear
+NULL	NULL
+NULL	NULL
+
+hive> dfs -cat /user/hive/warehouse/departments/par*;
+2Fitness         --> old rec
+3Footwear        
+2,Fitness         --> new rec
+3,Footwear
 
 
-sqoop export --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
-  --username retail_dba \
-  --password cloudera \
-  --table departments_test \
-  --export-dir /user/hive/warehouse/departments_test \
-  --input-fields-terminated-by '\001' \
-  --input-lines-terminated-by '\n' \
-  --num-mappers 2 \
-  --batch \
-  --outdir java_files \
-  --input-null-string nvl \
-  --input-null-non-string -1
+ii. sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table departments --hive-import --hive-home /user/hive/warehouse --hive-table departments 
+
+hive> select * from departments;
+OK
+2	Fitness        --> old rec
+3	Footwear
+NULL	NULL        --> new rec
+NULL	NULL
+2	Fitness        --> latest rec
+3	Footwear
+
+hive> dfs -cat /user/hive/warehouse/departments/par*;
+2Fitness
+3Footwear
+2,Fitness
+3,Footwear
+2Fitness
+3Footwear
+
+3. Nulls in source table:
+   ---------------------
+The table dept in mysql has got one entry which has null values in all columns. 
+ 
+mysql> select * from dept;
++------+----------+
+| id   | name     |
++------+----------+
+|    2 | Fitness  |
+|    3 | Footwear |
+|    4 | Apparel  |
+|    5 | Golf     |
+|    6 | Outdoors |
+|    7 | Fan Shop |
+| NULL | NULL     |
++------+----------+
+
+sqoop import --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" --username retail_dba --password cloudera \
+  --table dept --hive-import --hive-home /user/hive/warehouse --create-hive-table  \
+  --lines-terminated-by '\n' --fields-terminated-by '|' --m 1 \
+  --null-string nvl --null-non-string -1 --outdir java_files 
+
+hive> select * from dept;
+OK
+2	Fitness
+3	Footwear
+4	Apparel
+5	Golf
+6	Outdoors
+7	Fan Shop
+-1	nvl
+
+hive> dfs -cat /user/hive/warehouse/dept/par*;
+2|Fitness
+3|Footwear
+4|Apparel
+5|Golf
+6|Outdoors
+7|Fan Shop
+-1|nvl
 
