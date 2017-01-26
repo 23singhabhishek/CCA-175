@@ -157,6 +157,24 @@ sqoop import-all-tables \
 --as-avrodatafile
 --m 2
 
+[cloudera@quickstart ~]$ ls -ltr *.avsc
+-rw-rw-r-- 1 cloudera cloudera  594 Jan 26 05:15 categories.avsc
+-rw-rw-r-- 1 cloudera cloudera 1509 Jan 26 05:18 customers.avsc
+-rw-rw-r-- 1 cloudera cloudera  440 Jan 26 05:20 departments.avsc
+-rw-rw-r-- 1 cloudera cloudera 1099 Jan 26 05:21 order_items.avsc
+-rw-rw-r-- 1 cloudera cloudera  707 Jan 26 05:23 orders.avsc
+-rw-rw-r-- 1 cloudera cloudera 1041 Jan 26 05:25 products.avsc
+
+[cloudera@quickstart ~]$ hdfs dfs -ls sqoop/sqoop-import/avro/*
+Found 3 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-26 05:18 sqoop/sqoop-import/avro/categories/_SUCCESS
+-rw-r--r--   1 cloudera cloudera       1039 2017-01-26 05:18 sqoop/sqoop-import/avro/categories/part-m-00000.avro
+-rw-r--r--   1 cloudera cloudera        991 2017-01-26 05:18 sqoop/sqoop-import/avro/categories/part-m-00001.avro
+Found 3 items
+-rw-r--r--   1 cloudera cloudera          0 2017-01-26 05:20 sqoop/sqoop-import/avro/customers/_SUCCESS
+-rw-r--r--   1 cloudera cloudera     514711 2017-01-26 05:20 sqoop/sqoop-import/avro/customers/part-m-00000.avro
+-rw-r--r--   1 cloudera cloudera     518931 2017-01-26 05:20 sqoop/sqoop-import/avro/customers/part-m-00001.avro
+
 
 8. exclude tables
    --------------
@@ -164,9 +182,23 @@ sqoop import-all-tables \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
 --username retail_dba  \
 --password cloudera  \
---warehouse-dir sqoop/sqoop-import/excl 
---m 2
---exclude-tables products
+--warehouse-dir sqoop/sqoop-import/excl \
+--m 2 \
+--exclude-tables 'products,categories,order_items,orders'
+
+Skipping table: categories
+Skipping table: order_items
+Skipping table: orders
+Skipping table: products
+[cloudera@quickstart ~]$ hdfs dfs -ls sqoop/sqoop-import/excl
+Found 2 items
+drwxr-xr-x   - cloudera cloudera          0 2017-01-26 06:06 sqoop/sqoop-import/excl/customers
+drwxr-xr-x   - cloudera cloudera          0 2017-01-26 06:07 sqoop/sqoop-import/excl/departments
+
+P.S: The log would contain details on the list of tables which were skipped. The comma separated list of the tables which are
+to be excluded should not have any space between them.
+
+
 
 9. using compression codec
    -----------------------
