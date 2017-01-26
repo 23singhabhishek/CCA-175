@@ -9,8 +9,8 @@
 
 --table <table-name>	Table to read
 ===================================
---target-dir <dir>	HDFS destination dir
-========================================
+1. --target-dir <dir>	HDFS destination dir
+   ========================================
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_db \
@@ -20,8 +20,10 @@ sqoop import \
 
 P.S: Do not create the folder 'default' before executing the command
 
---as-textfile	      Imports data as plain text (default)
-=======================================================
+2. Different file formats:
+   ======================
+   --as-textfile	      Imports data as plain text (default)
+   =======================================================
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_db \
@@ -72,8 +74,8 @@ Target directory should not have any special characters in the name
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
-If the target directory exists, then add the option --delete-target-dir in the import statement.
-================================================================================================
+3. If the target directory exists, then add the option --delete-target-dir in the import statement.
+   ================================================================================================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -87,8 +89,8 @@ sqoop import \
 
 ********************************************************************************************************************************
 ********************************************************************************************************************************
--m,--num-mappers <n>	Use n map tasks to import in parallel
-===========================================================
+4. -m,--num-mappers <n>	Use n map tasks to import in parallel
+   ===========================================================
 Default mappers = 4. Hence 4 files are created in the target directory.
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -106,8 +108,8 @@ sqoop import \
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
---append	          Append data to an existing dataset in 
-=========================================================
+5. --append	          Append data to an existing dataset in 
+   =========================================================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -130,11 +132,10 @@ Found 5 items
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
--e,--query <statement>	Import the results of statement.
-=========================================================
+6. -e,--query <statement>	Import the results of statement.
+   =========================================================
 --split-by <column-name>	Column of the table used to split work units. Cannot be used with --autoreset-to-one-mapper option.
 =========================================================
-
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
@@ -155,8 +156,8 @@ sqoop import \
 -rw-r--r--   1 cloudera cloudera     324405 2016-12-29 00:24 /user/cloudera/sqoop/sqoop-import/query/part-m-00003
 
 
-split-by is usually used on tables without primary key
-======================================================
+7. split-by is usually used on tables without primary key
+   ======================================================
 
 sqoop import  \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/sqoop'  \
@@ -218,8 +219,8 @@ no of records:
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
---columns <col,col,col…>	Columns to import from table
-=====================================================
+8. --columns <col,col,col…>	Columns to import from table
+   =====================================================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart:3306/retail_db'  \
@@ -239,10 +240,8 @@ Found 5 items
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
---columns <col,col,col…>	Columns to import from table
-====================================================
--z,--compress	Enable compression
-================================
+9. -z,--compress	Enable compression
+   ================================
 
 sqoop import \
 --connect 'jdbc:mysql://quickstart:3306/retail_db'  \
@@ -264,8 +263,8 @@ Found 5 items
 ********************************************************************************************************************************
 ********************************************************************************************************************************
 
---boundary-query <statement>	Boundary query to use for creating splits
-======================================================================
+10. --boundary-query <statement>	Boundary query to use for creating splits
+    ======================================================================
 
 sqoop import  \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
@@ -400,37 +399,7 @@ sqoop import \
 
 ************************************************************************************************************************************
 
-
-
-sqoop import  \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
---username retail_dba  \
---password cloudera   \
---m 5 
---warehouse-dir /user/cloudera/sqoop/sqoop-import/term  \
---table categories \
---fields-terminated-by '|'  \
---lines-terminated-by '\t'
-
-
-Note: warehouse-dir creates a directory with same name as the table name (i.e: categories). So, for the above command 
-the folder created would be ' /user/cloudera/sqoop/sqoop-import/term/categories). Two directories :- term and categories have been
-created
-1|2|Football	2|2|Soccer	3|2|Baseball & Softball	4|2|Basketball	5|2|Lacrosse	6|2|Tennis & Racquet	7|2|Hockey	8|2|More Sports	9|3|Cardio Equipment	10|3|Strength Training	11|3|Fitness Accessories	12|3|Boxing & MMA	13|3|Electronics	14|3|Yoga & Pilates	15|3|Training by Sport	16|3|As Seen on  TV!	17|4|Cleats	18|4|Men's Footwear	19|4|Women's Footwear	20|4|Kids' Footwear	21|4|Featured Shops	22|4|Accessories	23|5|Men's Apparel	24|5|Women's Apparel25|5|Boys' Apparel	26|5|Girls' Apparel	27|5|Accessories	28|5|Top Brands	29|5|Shop By Sport	30|6|Men's Golf Clubs	31|6|Women's Golf Clubs	32|6|Golf Apparel	33|6|Golf Shoes	34|6|Golf Bags & Carts	35|6|Golf Gloves	36|6|Golf Balls	37|6|Electronics	38|6|Kids' Golf Clubs	39|6|Team Shop	40|6|Accessories	41|6|Trade-In	42|7|Bike & Skate Shop	43|7|Camping & Hiking	44|7|Hunting & Shooting	45|7|Fishing	46|7|Indoor/Outdoor Games	47|7|Boating	48|7|Water Sports	49|8|MLB	50|8|NFL	51|8|NHL	52|8|NBA	53|8|NCAA	54|8|MLS	55|8|International Soccer	56|8|World Cup Shop	57|8|MLB Players	58|8|NFL Players	
-
-sqoop import  \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db'  \
---username retail_dba  \
---password cloudera   \
---m 5 
---target-dir /user/cloudera/sqoop/sqoop-import/termtgt  \
---table categories \
---fields-terminated-by '#'  \
---lines-terminated-by '\0'
-
-1#2#Football2#2#Soccer3#2#Baseball & Softball4#2#Basketball5#2#Lacrosse6#2#Tennis & Racquet7#2#Hockey8#2#More Sports9#3#Cardio Equipment10#3#Strength Training11#3#Fitness Accessories12#3#Boxing & MMA13#3#Electronics14#3#Yoga & Pilates15#3#Training by Sport16#3#As Seen on  TV!17#4#Cleats18#4#Men's Footwear19#4#Women's Footwear20#4#Kids' Footwear21#4#Featured Shops22#4#Accessories23#5#Men's Apparel24#5#Women's Apparel25#5#Boys' Apparel26#5#Girls' Apparel27#5#Accessories28#5#Top Brands29#5#Shop By Sport30#6#Men's Golf Clubs31#6#Women's Golf Clubs32#6#Golf Apparel33#6#Golf Shoes34#6#Golf Bags & Carts35#6#Golf Gloves36#6#Golf Balls37#6#Electronics38#6#Kids' Golf Clubs39#6#Team Shop40#6#Accessories41#6#Trade-In42#7#Bike & Skate Shop43#7#Camping & Hiking44#7#Hunting & Shooting45#7#Fishing46#7#Indoor/Outdoor Games47#7#Boating48#7#Water Sports49#8#MLB50#8#NFL51#8#NHL52#8#NBA53#8#NCAA54#8#MLS55#8#International Soccer56#8#World Cup Shop57#8#MLB Players58#8#NFL Players
-
-********************************************************************************************************************************
+*******************************************************************************************************************************
 ********************************************************************************************************************************
 
 Incremental import
