@@ -1,1 +1,17 @@
 
+sqoop export \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-import/dept/pa* \
+--table dept \
+--m 2  --batch\
+--input-fields-terminated-by 
+--input-lines-terminated-by 
+--input-enclosed-by
+--input-escaped-by
+--input-null-string
+--input-non-null-string
+
+
+
+
