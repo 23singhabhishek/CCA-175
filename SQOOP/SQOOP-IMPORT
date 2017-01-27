@@ -20,56 +20,7 @@ sqoop import \
 
 P.S: Do not create the folder 'default' before executing the command
 
-2. Different file formats:
-   ======================
-   --as-textfile	      Imports data as plain text (default)
-   =======================================================
-sqoop import \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_db \
---password cloudera \
---table departments \
---as-textfile \
---target-dir=/user/cloudera/sqoop/sqoop-import/txtfil
-
-P.S: Do not create the folder 'txtfil' before executing the command
-
---as-avrodatafile	  Imports data to Avro Data Files
-===================================================
-sqoop import \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_db \
---password cloudera \
---table departments \
---as-avrodatafile \
---target-dir=/user/cloudera/sqoop/sqoop-import/avrfil
-
-P.S: Do not create the folder 'avrfil' before executing the command
-
---as-sequencefile	  Imports data to SequenceFiles
-=================================================
-sqoop import \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_db \
---password cloudera \
---table departments \
---as-sequencefile \
---target-dir=/user/cloudera/sqoop/sqoop-import/seqfil
-
-P.S: Do not create the folder 'seqfil' before executing the command
-
---as-parquetfile	  Imports data to Parquet Files
-=================================================
-sqoop import \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_db \
---password cloudera \
---table departments \
---as-parquetfile \
---target-dir /user/cloudera/sqoop/sqoopprq/prqfil
-
-P.S: Do not create the folder 'prqfil' before executing the command
-Target directory should not have any special characters in the name
+2. 
 
 ********************************************************************************************************************************
 ********************************************************************************************************************************
