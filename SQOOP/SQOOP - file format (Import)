@@ -1,0 +1,62 @@
+
+. Different file formats:
+   ======================
+   --as-textfile	      Imports data as plain text (default)
+   =======================================================
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_db \
+--password cloudera \
+--table departments \
+--as-textfile \
+--target-dir=/user/cloudera/sqoop/sqoop-import/txtfil
+
+P.S: Do not create the folder 'txtfil' before executing the command
+
+--as-avrodatafile	  Imports data to Avro Data Files
+===================================================
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_db \
+--password cloudera \
+--table departments \
+--as-avrodatafile \
+--target-dir=/user/cloudera/sqoop/sqoop-import/avrfil  \
+--outdir java_files
+cat .avsc gives the table schema.
+
+P.S: Do not create the folder 'avrfil' before executing the command
+Delimiters do not have much value when it comes to storing in avro format.
+Its more like JSON format.
+
+
+--as-sequencefile	  Imports data to SequenceFiles
+=================================================
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_db \
+--password cloudera \
+--table departments \
+--as-sequencefile \
+--target-dir=/user/cloudera/sqoop/sqoop-import/seqfil \
+--outdir java_files
+
+P.S: Do not create the folder 'seqfil' before executing the command
+Delimiters by default is comma. if delimiters are specified during import then the same should be used while export.
+
+--as-parquetfile	  Imports data to Parquet Files
+=================================================
+sqoop import \
+--connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
+--username retail_db \
+--password cloudera \
+--table departments \
+--as-parquetfile \
+--target-dir /user/cloudera/sqoop/sqoopprq/prqfil  \
+--outdir java_files
+
+P.S: Do not create the folder 'prqfil' before executing the command
+Target directory should not have any special characters in the name
+
+********************************************************************************************************************************
+********************************************************************************************************************************
