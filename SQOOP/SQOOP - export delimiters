@@ -1,17 +1,54 @@
 
-sqoop export \
---connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
---username retail_dba --password cloudera \
---export-dir sqoop/sqoop-import/dept/pa* \
---table dept \
---m 2  --batch\
---input-fields-terminated-by 
---input-lines-terminated-by 
+The below file contains the table 'dept' data. 
+
+[cloudera@quickstart ~]$ hdfs dfs -ls /user/hive/warehouse/dept
+Found 1 items
+-rwxrwxrwx   1 cloudera cloudera         67 2017-01-26 11:18 /user/hive/warehouse/dept/part-m-00000
+
+During export below command was used to unload the table.
+
+sqoop import --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" --username retail_dba --password cloudera \
+  --table dept --hive-import --hive-home /user/hive/warehouse --create-hive-table  \
+  --lines-terminated-by '\n' --fields-terminated-by '|' --m 1 --null-string nvl --null-non-string -1 --outdir java_files 
+
+Delete the data present in the table and use the sqoop export command to load the table. Use the same delimiters while loading.
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir /user/hive/warehouse/dept/par*  --table dept --m 2  --batch    \
+--input-fields-terminated-by '|' --input-lines-terminated-by  '\n'  \
+--input-null-string nvl --input-null-non-string -1  \
+--outdir java_files
+
+mysql> select * from dept;
++------+----------+
+| id   | name     |
++------+----------+
+|    2 | Fitness  |
+|    3 | Footwear |
+|    4 | Apparel  |
+|    5 | Golf     |
+|    6 | Outdoors |
+|    7 | Fan Shop |
+| NULL | NULL     |
++------+----------+
+7 rows in set (0.00 sec)
+
+mysql> select * from dept where id is null;
++------+------+
+| id   | name |
++------+------+
+| NULL | NULL |
++------+------+
+1 row in set (0.00 sec)
+
+
+
+
+
+--export-dir hdfs://quickstart.cloudera:8020/user/hive/warehouse/dept/pa*
+
 --input-enclosed-by
 --input-escaped-by
---input-null-string
---input-non-null-string
-
 
 
 
