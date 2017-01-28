@@ -92,6 +92,7 @@ created for the imported tables.
 
 Creating hive table from avsc :
 -----------------------------
+-- We cannot use sqoop import with hive import specifying the file format as avro
 - A file with extension avsc will be created under the directory from which sqoop import is executed
 -- Copy avsc file to HDFS location
 -- Create hive table with LOCATION to /user/cloudera/departments and TBLPROPERTIES pointing to avsc file
