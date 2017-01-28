@@ -1,6 +1,6 @@
 
 Sqoop import into a hive table: the data is stored in a temp directory rg: if we are importing the departments directory,
-the data is forst copied to /user/cloudera/departments. After this the data is written to /user/hive/warehouse/*.
+the data is first copied to /user/cloudera/departments. After this the data is written to /user/hive/warehouse/*.
 Then the data in /user/cloudera/departments is deleted.
 
 Even if the hive-home parameter is not mentioned by default the data is copied to /user/hive/warehouse
