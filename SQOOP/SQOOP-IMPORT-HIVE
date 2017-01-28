@@ -8,7 +8,6 @@ Even if the hive-home parameter is not mentioned by default the data is copied t
 TABLE CREATION WHILE IMPORTING
 ==============================
 
-
 1. Import all to hive (compression enabled)
    ------------------------------------------
 --compression-codec <c>	Use Hadoop codec (default gzip)
@@ -45,6 +44,7 @@ Found 5 items
 
 hive>describe  formatted tablename
 
+--------------------------------------------------------------------------------------------------------------------------------
 2. Import with compression-codec snappy
    -------------------------------------
 sqoop import  --m 5 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
@@ -61,18 +61,11 @@ Found 6 items
 -rwxrwxrwx   1 cloudera cloudera         21 2017-01-28 01:51 /user/hive/warehouse/zips.db/departments/part-m-00005.snappy
 
 
-hive> dfs -cat /user/hive/warehouse/zips.db/departments/part*
-    > ;
-
-
-
+hive> dfs -cat /user/hive/warehouse/zips.db/departments/part*;
 $2Fitness
-
-
 (3Footwear
 
-
-
+--------------------------------------------------------------------------------------------------------------------------------
 3. Import with no compression codec mentioned
    ------------------------------------------
 sqoop import  --m 5 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
@@ -90,6 +83,7 @@ hive> dfs -cat /user/hive/warehouse/zips.db/categories/par*;
 %�0
      E��_����<�Q1Ѕ�B0%j��8���1�v���l�2U���r#�K���z�z.���{\p+x�.3�N��<��ͺi�{�
 
+--------------------------------------------------------------------------------------------------------------------------------
 4. Import selected columns to hive and create hive table
    ------------------------------------------------------
 sqoop import --m 2 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera  \
@@ -110,7 +104,7 @@ OK
 4	92069	XXXXXXXXX
 5	00725	XXXXXXXXX
 
-
+--------------------------------------------------------------------------------------------------------------------------------
 5. Import a query and create hive table
    ------------------------------------
  sqoop import --m 2 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera  \
@@ -121,6 +115,7 @@ OK
 [cloudera@quickstart ~]$ hdfs dfs -ls sqoop/sqoop-import/h*
 ls: `sqoop/sqoop-import/h*': No such file or directory
 
+hive> select * from sqpimp.qry;
 2	2013-07-25 00:00:00.0	256	PENDING_PAYMENT
 9	2013-07-25 00:00:00.0	5657	PENDING_PAYMENT
 
@@ -132,15 +127,13 @@ sqoop import --m 2 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' -
 --query 'select * from orders where $CONDITIONS and order_status like "%PENDING%"'  \
 --target-dir sqoop/sqoop-import/hqry --split-by order_id
 
-
 count in mysql: 22640
 count in hive: 22640
-
 
 P.S.: the symbol \ is used with $CONDITIONS when the query is enclosed in double quotes. If the query is enclosed in single quotes 
 then the symbol \ is not required.
 
-
+--------------------------------------------------------------------------------------------------------------------------------
 6. Import selected columns using a query and create hive table
    ----------------------------------------------------------
 sqoop import --m 2 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
@@ -154,9 +147,7 @@ OK
 3	Ann	PR
 5	Robert	PR
 
-
-
-
+--------------------------------------------------------------------------------------------------------------------------------
 7. import a table without any primary key (sqoop.patient)
    ------------------------------------------------------
 i. [cloudera@quickstart ~]$ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/sqoop' --username root 
@@ -175,7 +166,7 @@ iii. [cloudera@quickstart ~]$ sqoop import --connect 'jdbc:mysql://quickstart.cl
 --password cloudera --table patient \
 --hive-home /user/hive/warehouse --hive-import --create-hive-table --hive-table sqoop.patient --split-by 'PID'
 
-
+--------------------------------------------------------------------------------------------------------------------------------
 8. Import a table without primary key (columns)
    --------------------------------------------
 sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
@@ -198,13 +189,12 @@ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --usern
 --hive-import --hive-database sqpimp --hive-table ords \
 --split-by order_id
 
-
 mysql count: 68883
 hive cnt: 68883
 
-
+--------------------------------------------------------------------------------------------------------------------------------
 9. Import a table without primary key (where clause)
-      
+   -------------------------------------------------
 sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
 --e 'select order_id, order_status from ord where $CONDITIONS and order_status not like "%PENDING%"' \
 --hive-import --hive-database sqpimp --hive-table ordq  \
@@ -215,6 +205,7 @@ hive: 46243
 
 P.S: Use either --m 1 or split-by
 
+--------------------------------------------------------------------------------------------------------------------------------
 8. Import a table with primary key
    ------------------------------
 P.S. if primary key is present then split-by parameter is not mandatory
