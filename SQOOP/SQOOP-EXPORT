@@ -1,5 +1,233 @@
 
-Create table in retail_db with no data (the where cond 1 = 2 is alwasy FALSE, hence the data is not inserted into the newly
+I. Table without primary key :
+   -------------------------
+1. Basic export:
+   ------------
+mysql> describe ordexp;
++-------------------+-------------+------+-----+---------+-------+
+| Field             | Type        | Null | Key | Default | Extra |
++-------------------+-------------+------+-----+---------+-------+
+| order_id          | int(11)     | NO   |     | 0       |       |
+| order_date        | datetime    | NO   |     | NULL    |       |
+| order_customer_id | int(11)     | NO   |     | NULL    |       |
+| order_status      | varchar(45) | NO   |     | NULL    |       |
++-------------------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir /user/cloudera/sqoop/sqoop-export/ord \
+--table ordexp \
+--m 2
+
+Records exported : 20
+mysql> ordexp --> count --> 20
+
+As the table is empty the records were inserted.
+
+On running the same command again, the records present in the export-dir were inserted to the table. so, total count = 40
+
+
+2. using option update-mode updateonly
+   -------------------------------------
+a. sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table ordexp --m 2 --export-dir sqoop/sqoop-export/ord \
+--update-mode updateonly
+
+As update-key is not mentioned, records were inserted to the table, total rec cnt in ordexp = 60
+
+mysql> select * from ordexp where order_id in (1,2,5,7,0);
++----------+---------------------+-------------------+-----------------+
+| order_id | order_date          | order_customer_id | order_status    |
++----------+---------------------+-------------------+-----------------+
+|        1 | 2013-07-25 00:00:00 |             11599 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               256 | PENDING_PAYMENT |
+|        5 | 2013-07-25 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-25 00:00:00 |              4530 | COMPLETE        |
+|        1 | 2013-07-25 00:00:00 |             11599 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               256 | PENDING_PAYMENT |
+|        5 | 2013-07-25 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-25 00:00:00 |              4530 | COMPLETE        |
+|        1 | 2013-07-25 00:00:00 |             11599 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               256 | PENDING_PAYMENT |
+|        5 | 2013-07-25 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-25 00:00:00 |              4530 | COMPLETE        |
++----------+---------------------+-------------------+-----------------+
+12 rows in set (0.01 sec)
+
+b. In the ord1 file, below changes were made
+customer-ids for the orders with order_id 1, 2 have been modified to 11600 and 257
+1,2013-07-25 00:00:00.0,11600,CLOSED
+2,2013-07-25 00:00:00.0,257,PENDING_PAYMENT
+
+order_dates have been modified for 5 and 7
+5,2013-07-26 00:00:00.0,11318,COMPLETE
+6,2013-07-25 00:00:00.0,7130,COMPLETE
+7,2013-07-26 00:00:00.0,4530,COMPLETE
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table ordexp --m 2 --export-dir sqoop/sqoop-export/ord1 \
+--update-mode updateonly  \
+--update-key order_id
+
+Records were updated. No recs were inserted. Rec cnt in ordexp = 60
+
+mysql> select * from ordexp where order_id in (1,2,5,7,0);
++----------+---------------------+-------------------+-----------------+
+| order_id | order_date          | order_customer_id | order_status    |
++----------+---------------------+-------------------+-----------------+
+|        1 | 2013-07-25 00:00:00 |             11600 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               257 | PENDING_PAYMENT |
+|        5 | 2013-07-26 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-26 00:00:00 |              4530 | COMPLETE        |
+|        1 | 2013-07-25 00:00:00 |             11600 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               257 | PENDING_PAYMENT |
+|        5 | 2013-07-26 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-26 00:00:00 |              4530 | COMPLETE        |
+|        1 | 2013-07-25 00:00:00 |             11600 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               257 | PENDING_PAYMENT |
+|        5 | 2013-07-26 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-26 00:00:00 |              4530 | COMPLETE        |
++----------+---------------------+-------------------+-----------------+
+
+
+3. using option update-mode allowinsert
+a. sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table ordexp --m 2 --export-dir sqoop/sqoop-export/ord1 \
+--update-mode allowinsert  \
+--update-key order_id
+
+Records were inserted. mysql count = 80
+
+b. 2 records with one new record and the other existing rec
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-export/ord2
+   0,2013-07-25 00:00:00.0,12111,COMPLETE
+   4,2013-07-25 00:00:00.0,8827,CLOSED
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table ordexp --m 2 --export-dir sqoop/sqoop-export/ord2 \
+--update-mode allowinsert  \
+--update-key order_id
+
+Both records were inserted.
+
+c. 2 records with one new rec and the other existing rec but with changes
+[cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-export/ord3
+21,2013-07-25 00:00:00.0,12111,COMPLETE
+8,2013-07-25 00:00:00.0,8827,COMPLETE
+
+mysql> select * from ordexp where order_id in (21,8);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
++----------+---------------------+-------------------+--------------+
+4 rows in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table ordexp --m 2 --export-dir sqoop/sqoop-export/ord3 \
+--update-mode allowinsert  \
+--update-key order_id
+
+Both recs were inserted. 
+mysql> select * from ordexp where order_id in (21,8);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
+|       21 | 2013-07-25 00:00:00 |             12111 | COMPLETE     |
+|        8 | 2013-07-25 00:00:00 |              8827 | COMPLETE     |
++----------+---------------------+-------------------+--------------+
+6 rows in set (0.00 sec)
+
+========================================================================================================================
+Table with primary key:
+---------------------
+mysql> describe ordexp1;
++-------------------+-------------+------+-----+---------+-------+
+| Field             | Type        | Null | Key | Default | Extra |
++-------------------+-------------+------+-----+---------+-------+
+| order_id          | int(11)     | NO   | PRI | 0       |       |
+| order_date        | datetime    | NO   |     | NULL    |       |
+| order_customer_id | int(11)     | NO   |     | NULL    |       |
+| order_status      | varchar(45) | NO   |     | NULL    |       |
++-------------------+-------------+------+-----+---------+-------+
+
+mysql> ordexp1 --> count --> 20
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-import/orders/part-m-00000 --table ordexp1  --m 2 
+
+The export job has failed. The input file has 17221 records. But the count in table indicates 120 recs. So, some records from
+the input file has been copied. The job must have failed when the check on primary key failed.
+
+
+
+i. Without prim key
+
+a. The orders table data is taken but with only first 20 records (order id 1 to order id 20). No change in the input date
+
+
+
+The 20 records present in the input file has been appended to the table. Now the rec count is 17241 + 20 = 17261 records
+
+b. 4 records have been modified. 
+
+mysql> select * from ordexp where order_id in (1,2,5,7,0);
++----------+---------------------+-------------------+-----------------+
+| order_id | order_date          | order_customer_id | order_status    |
++----------+---------------------+-------------------+-----------------+
+|        1 | 2013-07-25 00:00:00 |             11599 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               256 | PENDING_PAYMENT |
+|        5 | 2013-07-25 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-25 00:00:00 |              4530 | COMPLETE        |
+|        1 | 2013-07-25 00:00:00 |             11599 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               256 | PENDING_PAYMENT |
+|        5 | 2013-07-25 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-25 00:00:00 |              4530 | COMPLETE        |
+|        1 | 2013-07-25 00:00:00 |             11599 | CLOSED          |
+|        2 | 2013-07-25 00:00:00 |               256 | PENDING_PAYMENT |
+|        5 | 2013-07-25 00:00:00 |             11318 | COMPLETE        |
+|        7 | 2013-07-25 00:00:00 |              4530 | COMPLETE        |
++----------+---------------------+-------------------+-----------------+
+
+customer-ids for the orders with order_id 1, 2 have been modified to 11600 and 257
+1,2013-07-25 00:00:00.0,11600,CLOSED
+2,2013-07-25 00:00:00.0,257,PENDING_PAYMENT
+
+order_dates have been modified for 5 and 7
+5,2013-07-26 00:00:00.0,11318,COMPLETE
+6,2013-07-25 00:00:00.0,7130,COMPLETE
+7,2013-07-26 00:00:00.0,4530,COMPLETE
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table ordexp --m 2 --export-dir sqoop/sqoop-export/ord1 \
+--update-mode updateonly
+
+
+
+c. Update + insert rec:
+
+with prim key
+
+
+
+3. using option update-mode allowinsert
+
+
+
+4. columns
+
+
+staging table
+******************************************************************************************************************************
+******************************************************************************************************************************
+Create table in retail_db with no data (the where cond 1 = 2 is always FALSE, hence the data is not inserted into the newly
 created table). No primary key gets created.
 
 create table order_items_export as select * from order_items where 1= 2;
