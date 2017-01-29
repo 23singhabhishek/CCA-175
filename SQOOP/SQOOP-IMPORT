@@ -146,7 +146,7 @@ sqoop import \
 --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 --username retail_dba \
 --password cloudera \
---e "select * from departments WHERE /$CONDITIONS and department_name like '%o%'" \
+--e "select * from departments WHERE \$CONDITIONS and department_name like '%o%'" \
 --target-dir /user/cloudera/sqoop/sqoop-import/cond
 --split-by department_id
 
@@ -223,7 +223,7 @@ sqoop import  \
 --password cloudera \
 --table order_items  \
 --target-dir /user/cloudera/sqoop/sqoop-import/bound  \
---boundary-query 'select mib(order_item_id), max(order_item_id) from order_items where order_item_id < 300'
+--boundary-query 'select min(order_item_id), max(order_item_id) from order_items where order_item_id < 300'
 
 17/01/03 09:23:15 INFO mapreduce.ImportJobBase: Transferred 7.5967 KB in 110.5198 seconds (70.3856 bytes/sec)
 17/01/03 09:23:15 INFO mapreduce.ImportJobBase: Retrieved 299 records.
@@ -320,10 +320,6 @@ sqoop import \
 -rw-r--r--   1 cloudera cloudera    1371917 2017-01-03 10:11 /user/cloudera/sqoop/sqoop-import/onemap/part-m-00002
 -rw-r--r--   1 cloudera cloudera    1389923 2017-01-03 10:10 /user/cloudera/sqoop/sqoop-import/onemap/part-m-00003
 
-
-
-
-P.S.: check the above command with import-all-tables #####
 
 ********************************************************************************************************************************
 aggregate function
