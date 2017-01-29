@@ -11,7 +11,7 @@ TABLE CREATION WHILE IMPORTING
 1. Import all to hive (compression enabled)
    ------------------------------------------
 --compression-codec <c>	Use Hadoop codec (default gzip)
-======================================l==================
+========================================================
 
 sqoop import-all-tables  \
 --m 5 \
@@ -223,7 +223,32 @@ $ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' \
 
 IMPORT SQOOP DATA TO AN EXISTING HIVE TABLE
 ===========================================
+
+i. Once the data has been imported to hive and a hive table has been created running the same command would append the data to the
+table. In the below command, create-hive-table option is not mentioned, hence the second import appends the data.
+
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table departments --hive-import --hive-database sqpimp --hive-table dept --m 2
+
+ii. If the option create-hive-table is mentioned then the second time import is not successful.
+
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera 
+--table departments --hive-import --hive-database sqpimp --hive-table dept2 --m 2 --create-hive-table
+
+iii. If the option hive-overwrite is mentioned in (i) after creation of the table then the existing data is overwritten
+If the option hive-overwrite is mentioned in (ii) after creation of the table then an error occurs.
+
+iv. Option append: 
+sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table departments --hive-import --hive-table sqpimp.dept --m 2 --append
+
+append is not supported for hive
+
+
+*********************************************************************************************************************
+*********************************************************************************************************************
 a. Create Hive table:
+   -----------------
 create table sqoop.departments_new (department_id int, department_name varchar(45));
 
 $ sqoop import --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
