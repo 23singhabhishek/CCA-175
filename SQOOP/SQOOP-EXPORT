@@ -168,15 +168,168 @@ Create a table orditmsub which is having the columns.
 Now, export the data unload from the table order_items for the selected columns.
 
 a. First time insert
++---------+------------+------+-----+---------+-------+
+| Field   | Type       | Null | Key | Default | Extra |
++---------+------------+------+-----+---------+-------+
+| itm_id  | int(11)    | YES  |     | NULL    |       |
+| ord_id  | int(11)    | YES  |     | NULL    |       |
+| prod_id | int(11)    | YES  |     | NULL    |       |
+| qty     | tinyint(4) | YES  |     | NULL    |     
 
+
+[cloudera@quickstart ~]$ sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba \
+--password cloudera --export-dir sqoop/sqoop-export/orditm1 --table orditmsub --columns 'itm_id, ord_id, prod_id, qty'
+
+mysql> select * from orditmsub;
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|     13 |      5 |     403 |    1 |
+|     14 |      7 |    1073 |    1 |
+|     15 |      7 |     957 |    1 |
+|      1 |      1 |     957 |    1 |
+|      2 |      2 |    1073 |    1 |
+|      3 |      2 |     502 |    5 |
+|      4 |      2 |     403 |    1 |
+|      5 |      4 |     897 |    2 |
+|      6 |      4 |     365 |    5 |
+|      7 |      4 |     502 |    3 |
+|      8 |      4 |    1014 |    4 |
+|      9 |      5 |     957 |    1 |
+|     10 |      5 |     365 |    5 |
+|     11 |      5 |    1014 |    2 |
+|     12 |      5 |     957 |    1 |
++--------+--------+---------+------+
+
+Conclusion:
+----------
+The order of columns in the input dataset is of the same order as it appears in the table.
+it's also seen that even without the option columns the data is inserted into the table.
 
 b. update-mode (allowinsert)
 
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm2 --table orditmsub --columns 'ord_id, qty' --update-mode allowinsert --update-key itm_id
+
+
+
 
 c. update-mode (updateonly)
-Make changes to multiple column data in the source file but include only one of the columns
 
 
+i. mysql> select * from orditmsub where itm_id in (2,5,20);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      2 |      2 |    1073 |    1 |
+|      5 |      4 |     897 |    2 |
++--------+--------+---------+------+
+2 rows in set (0.02 sec)
+
+orditm2
+-------
+2,2,1074,1
+5,7,897,2
+20,6,366,4
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm2 --table orditmsub --columns 'itm_id,ord_id,prod_id, qty' --update-mode updateonly \
+--update-key itm_id
+
+mysql> select * from orditmsub where itm_id in (2,5,20);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      2 |      2 |    1074 |    1 |
+|      5 |      7 |     897 |    2 |
++--------+--------+---------+------+
+2 rows in set (0.00 sec)
+
+Conclusion: The columns for the item ids 2 and 5 are updated.
+----------
+
+ii. mysql> select * from orditmsub where itm_id in (9,21);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      9 |      5 |     957 |    1 |
++--------+--------+---------+------+
+
+orditm3
+9,959
+21,644
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm3 --table orditmsub --columns 'itm_id,prod_id' --update-mode updateonly \
+--update-key itm_id
+
+mysql> select * from orditmsub where itm_id in (9,21);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      9 |      5 |     959 |    1 |
++--------+--------+---------+------+
+1 row in set (0.00 sec)
+
+
+iii.
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm2 --table orditmsub --columns 'itm_id,prod_id' --update-mode updateonly \
+--update-key itm_id
+
+mysql> select * from orditmsub where itm_id in (2,5,20);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      2 |      2 |    1074 |    1 |
+|      5 |      7 |     897 |    2 |
++--------+--------+---------+------+
+2 rows in set (0.00 sec)
+
+mysql> select * from orditmsub where itm_id in (2,5,20);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      2 |      2 |       2 |    1 |
+|      5 |      7 |       7 |    2 |
++--------+--------+---------+------+
+
+iv. 
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm4 --table orditmsub --columns 'itm_id,prod_id,qty' --update-mode updateonly \
+--update-key itm_id --batch
+
+orditm4
+2,3
+5,9
+20,6
+
+mysql> select * from orditmsub where itm_id in (2,5,20);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      2 |      2 |       2 |    1 |
+|      5 |      7 |       7 |    2 |
++--------+--------+---------+------+
+
+The above sqoop command failed.
+
+
+Conclusion:
+----------
+--> Under columns it is mandatory to mention the key specified in update-key
+--> New rows are not inserted.
+--> For the columns mentioned in the column option, same fields should be present in the input file. The corresponding columns
+in the table would get updated with newer values.
+--> For the columns mentioned in the column option, if additional/less fields are present in the input file then the field values as 
+per the order mentioned in columns option is taken. This might give rise to erroneous results.
+
+
+5. Staging table:
+   -------------
+
+
+   
 ========================================================================================================================
 Table with primary key:
 ---------------------
