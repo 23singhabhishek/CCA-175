@@ -206,15 +206,8 @@ Conclusion:
 The order of columns in the input dataset is of the same order as it appears in the table.
 it's also seen that even without the option columns the data is inserted into the table.
 
-b. update-mode (allowinsert)
 
-sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
---export-dir sqoop/sqoop-export/orditm2 --table orditmsub --columns 'ord_id, qty' --update-mode allowinsert --update-key itm_id
-
-
-
-
-c. update-mode (updateonly)
+b. update-mode (updateonly)
 
 
 i. mysql> select * from orditmsub where itm_id in (2,5,20);
@@ -273,10 +266,6 @@ mysql> select * from orditmsub where itm_id in (9,21);
 
 
 iii.
-sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
---export-dir sqoop/sqoop-export/orditm2 --table orditmsub --columns 'itm_id,prod_id' --update-mode updateonly \
---update-key itm_id
-
 mysql> select * from orditmsub where itm_id in (2,5,20);
 +--------+--------+---------+------+
 | itm_id | ord_id | prod_id | qty  |
@@ -285,6 +274,16 @@ mysql> select * from orditmsub where itm_id in (2,5,20);
 |      5 |      7 |     897 |    2 |
 +--------+--------+---------+------+
 2 rows in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm2 --table orditmsub --columns 'itm_id,prod_id' --update-mode updateonly \
+--update-key itm_id
+
+orditm2
+-------
+2,2,1074,1
+5,7,897,2
+20,6,366,4
 
 mysql> select * from orditmsub where itm_id in (2,5,20);
 +--------+--------+---------+------+
@@ -324,6 +323,130 @@ in the table would get updated with newer values.
 --> For the columns mentioned in the column option, if additional/less fields are present in the input file then the field values as 
 per the order mentioned in columns option is taken. This might give rise to erroneous results.
 
+
+c. update-mode (allowinsert)
+
+i. mysql> select * from orditmsub where itm_id in (5,16);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      5 |      7 |       7 |    2 |
++--------+--------+---------+------+
+1 row in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm5 --table orditmsub --columns 'itm_id, ord_id, prod_id, qty' --update-mode allowinsert \
+--update-key itm_id
+
+orditm5
+16,2,1074,5
+5,2,897,2
+
+mysql> select * from orditmsub where itm_id in (5,16);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      5 |      7 |       7 |    2 |
+|     16 |      2 |    1074 |    5 |
+|      5 |      2 |     897 |    2 |
++--------+--------+---------+------+
+3 rows in set (0.00 sec)
+
+ii. 
+mysql> select * from orditmsub where itm_id in (5,17);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      5 |      7 |       7 |    2 |
+|      5 |      2 |     897 |    2 |
++--------+--------+---------+------+
+2 rows in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm6 --table orditmsub --columns 'itm_id, prod_id, qty' --update-mode allowinsert \
+--update-key itm_id
+
+orditm6
+17,2241,4
+5,99,3
+
+mysql> select * from orditmsub where itm_id in (5,17);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      5 |      7 |       7 |    2 |
+|      5 |      2 |     897 |    2 |
+|     17 |   NULL |   22421 |    4 |
+|      5 |   NULL |      99 |    3 |
++--------+--------+---------+------+
+4 rows in set (0.00 sec)
+
+
+iii. 
+mysql> select * from orditmsub where itm_id in (5,16);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      5 |      7 |       7 |    2 |
+|     16 |      2 |    1074 |    5 |
+|      5 |      2 |     897 |    2 |
+|      5 |   NULL |      99 |    3 |
++--------+--------+---------+------+
+4 rows in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm5 --table orditmsub --columns 'itm_id, prod_id, qty' --update-mode allowinsert \
+--update-key itm_id
+
+orditm5
+16,2,1074,5
+5,2,897,2
+
+mysql> select * from orditmsub where itm_id in (5,16);+--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      5 |      7 |       7 |    2 |
+|     16 |      2 |    1074 |    5 |
+|      5 |      2 |     897 |    2 |
+|      5 |   NULL |      99 |    3 |
++--------+--------+---------+------+
+
+No rows were inserted as the export job failed due to 'Out of range value for column 'qty''
+
+iv. 
+
+mysql> select * from orditmsub where itm_id in (5,17);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      5 |      7 |       7 |    2 |
+|      5 |      2 |     897 |    2 |
+|     17 |   NULL |   22421 |    4 |
+|      5 |   NULL |      99 |    3 |
++--------+--------+---------+------+
+4 rows in set (0.00 sec)
+
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/orditm6 --table orditmsub --columns 'itm_id, ord_id, prod_id, qty' --update-mode allowinsert \
+--update-key itm_id
+
+orditm6
+17,2241,4
+5,99,3
+
+mysql> select * from orditmsub where itm_id in (5,17);
++--------+--------+---------+------+
+| itm_id | ord_id | prod_id | qty  |
++--------+--------+---------+------+
+|      5 |      7 |       7 |    2 |
+|      5 |      2 |     897 |    2 |
+|     17 |   NULL |   22421 |    4 |
+|      5 |   NULL |      99 |    3 |
++--------+--------+---------+------+
+4 rows in set (0.00 sec)
+
+No rows were inserted as the export job failed due to 'Can't parse input data: '3''
 
 5. Staging table:
    -------------
