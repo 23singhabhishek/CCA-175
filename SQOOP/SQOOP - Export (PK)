@@ -1,0 +1,152 @@
+
+====
+Table with primary key:
+---------------------
+1. Basic export:
+   -----------
+mysql> describe ordexp1;
++-------------------+-------------+------+-----+---------+-------+
+| Field             | Type        | Null | Key | Default | Extra |
++-------------------+-------------+------+-----+---------+-------+
+| order_id          | int(11)     | NO   | PRI | 0       |       |
+| order_date        | datetime    | NO   |     | NULL    |       |
+| order_customer_id | int(11)     | NO   |     | NULL    |       |
+| order_status      | varchar(45) | NO   |     | NULL    |       |
++-------------------+-------------+------+-----+---------+-------+
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/ord --table ordexp1  --m 2 
+
+mysql> ordexp1 --> count --> 20
+
+Run the same command again. The export job failed. The input file has one new record and one existing record.
+
+ord2:
+0,2013-07-25 00:00:00.0,12111,COMPLETE
+4,2013-07-25 00:00:00.0,8827,CLOSED
+
+mysql> select * from ordexp1 where order_id in (0,4);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        4 | 2013-07-25 00:00:00 |              8827 | CLOSED       |
++----------+---------------------+-------------------+--------------+
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/ord2 --table ordexp1  --m 2 --batch
+
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        0 | 2013-07-25 00:00:00 |             12111 | COMPLETE     |
+|        4 | 2013-07-25 00:00:00 |              8827 | CLOSED       |
++----------+---------------------+-------------------+--------------+
+
+The job failed but the record which was not present previously has got inserted.
+
+ord2a
+30,2013-07-25 00:00:00.0,12111,COMPLETE
+4,2013-07-25 00:00:00.0,8828,CLOSED
+
+mysql> select * from ordexp1 where order_id in (30,4);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        4 | 2013-07-25 00:00:00 |              8827 | CLOSED       |
++----------+---------------------+-------------------+--------------+
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/ord2a --table ordexp1  --m 2 --batch
+
+mysql> select * from ordexp1 where order_id in (30,4);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        4 | 2013-07-25 00:00:00 |              8827 | CLOSED       |
+|       30 | 2013-07-25 00:00:00 |             12111 | COMPLETE     |
++----------+---------------------+-------------------+--------------+
+
+The job failed but the record which was not present previously has got inserted. Although the existing rec has got changes, the
+change was not updated.
+
+2. using option update-mode updateonly: 
+   -----------------------------------
+   Include the option update-mode updateonly (without using update-key) and load the data to the table from the same file as 
+   used in step (1). 
+   
+a. sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table ordexp1 --m 2 --export-dir sqoop/sqoop-export/ord2a  \
+--update-mode updateonly --batch
+
+The job failed as the primary key for both records already existed in the table.
+
+b. sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--table ordexp1 --m 2 --export-dir sqoop/sqoop-export/ord2b  \
+--update-mode updateonly --update-key order_id --batch
+
+31,2013-07-25 00:00:00.0,12113,COMPLETE
+4,2013-07-25 00:00:00.0,8828,CLOSED
+
+mysql> select * from ordexp1 where order_id in (31,4);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        4 | 2013-07-25 00:00:00 |              8827 | CLOSED       |
++----------+---------------------+-------------------+--------------+
+
+o/p:
+select * from ordexp1 where order_id in (31,4);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        4 | 2013-07-25 00:00:00 |              8828 | CLOSED       |
++----------+---------------------+-------------------+--------------+
+
+No new record was inserted. The existing record has got updated.
+
+3. Using option update-mode allowinsert:
+   ------------------------------------
+   
+   sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera --m 2 \
+   --table ordexp1 --export-dir sqoop/sqoop-export/ord3 --update-mode allowinsert --update-key order_id --batch
+
+
+mysql> select * from ordexp1 where order_id in (21,8);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-07-25 00:00:00 |              2911 | PROCESSING   |
+
+ord3
+21,2013-07-25 00:00:00.0,12111,COMPLETE
+8,2013-07-25 00:00:00.0,8827,COMPLETE
+
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-07-25 00:00:00 |              8827 | COMPLETE     |
+|       21 | 2013-07-25 00:00:00 |             12111 | COMPLETE     |
++----------+---------------------+-------------------+--------------+
+2 rows in set (0.00 sec)
+
+Conclusion:  The new record was inserted while the existing record was updated for the changes.
+
+
+
+4. Option columns
+
+
+
+5. Option columns
+
+
+
+
+
+
+
+
+
+
+
+staging table
