@@ -133,7 +133,34 @@ Conclusion:  The new record was inserted while the existing record was updated f
 
 
 
-4. Option columns
+4. Option columns (updateonly)
+   --------------
+   
+   mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-07-25 00:00:00 |              8827 | COMPLETE     |
++----------+---------------------+-------------------+--------------+
+1 row in set (0.00 sec)
+
+   
+   sqoop export --connect 'jdbc:mysql://quickstart:3306/retail_db' --username retail_dba --password cloudera --m 2\
+   --table ordexp1 --columns 'order_id, order_date, order_customer_id, order_status'  \
+   --export-dir sqoop/sqoop-export/ord4  --update-mode updateonly --update-key order_id --batch
+
+ord4
+----
+22,2013-07-25 00:00:00.0,12111,COMPLETE
+8,2013-06-25 00:00:00.0,8827,PENDING
+
+mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | PENDING      |
++----------+---------------------+-------------------+--------------+
+
 
 
 
