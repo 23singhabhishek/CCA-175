@@ -1,7 +1,7 @@
 
 I. Table without primary key :
    -------------------------
-1. Basic export:
+1. Basic export:- Create an empty table in mysql ordexp with no primary key and export the data.
    ------------
 mysql> describe ordexp;
 +-------------------+-------------+------+-----+---------+-------+
@@ -22,17 +22,23 @@ sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --usern
 Records exported : 20
 mysql> ordexp --> count --> 20
 
+Conclusion: 
+----------
 As the table is empty the records were inserted.
-
 On running the same command again, the records present in the export-dir were inserted to the table. so, total count = 40
 
 
-2. using option update-mode updateonly
-   -------------------------------------
+2. using option update-mode updateonly: 
+   -----------------------------------
+   Include the option update-mode updateonly (without using update-key) and load the data to the table from the same file as 
+   used in step (1). 
+   
 a. sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
 --table ordexp --m 2 --export-dir sqoop/sqoop-export/ord \
 --update-mode updateonly
 
+Conclusion: 
+----------
 As update-key is not mentioned, records were inserted to the table, total rec cnt in ordexp = 60
 
 mysql> select * from ordexp where order_id in (1,2,5,7,0);
@@ -54,7 +60,9 @@ mysql> select * from ordexp where order_id in (1,2,5,7,0);
 +----------+---------------------+-------------------+-----------------+
 12 rows in set (0.01 sec)
 
-b. In the ord1 file, below changes were made
+b. Include the option update-key and in the source file have some changes for few records of the table
+   ---------------------------------------------------------------------------------------------------
+In the ord1 file, below changes were made
 customer-ids for the orders with order_id 1, 2 have been modified to 11600 and 257
 1,2013-07-25 00:00:00.0,11600,CLOSED
 2,2013-07-25 00:00:00.0,257,PENDING_PAYMENT
@@ -69,7 +77,8 @@ sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --usern
 --update-mode updateonly  \
 --update-key order_id
 
-Records were updated. No recs were inserted. Rec cnt in ordexp = 60
+Conclusion: Records were updated. No recs were inserted. Rec cnt in ordexp = 60
+----------
 
 mysql> select * from ordexp where order_id in (1,2,5,7,0);
 +----------+---------------------+-------------------+-----------------+
@@ -90,15 +99,19 @@ mysql> select * from ordexp where order_id in (1,2,5,7,0);
 +----------+---------------------+-------------------+-----------------+
 
 
-3. using option update-mode allowinsert
+3. using option update-mode allowinsert:
+   -------------------------------------
+   Use the same file as used in step (2b) and run the export command with option allowinsert and update-key mentioned.
+   
 a. sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
 --table ordexp --m 2 --export-dir sqoop/sqoop-export/ord1 \
 --update-mode allowinsert  \
 --update-key order_id
 
-Records were inserted. mysql count = 80
+Conclusion: Records were inserted. mysql count = 80
+----------
 
-b. 2 records with one new record and the other existing rec
+b. In the input file have one new rec and one existing rec with no changes. 2 records with one new record and the other existing rec
 [cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-export/ord2
    0,2013-07-25 00:00:00.0,12111,COMPLETE
    4,2013-07-25 00:00:00.0,8827,CLOSED
@@ -108,9 +121,11 @@ sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --usern
 --update-mode allowinsert  \
 --update-key order_id
 
-Both records were inserted.
+Conclusion: Both records were inserted.
+----------
 
-c. 2 records with one new rec and the other existing rec but with changes
+c. In the input file have one new rec and one existing rec with changes. 2 records with one new rec and the other existing rec 
+but with changes
 [cloudera@quickstart ~]$ hdfs dfs -cat sqoop/sqoop-export/ord3
 21,2013-07-25 00:00:00.0,12111,COMPLETE
 8,2013-07-25 00:00:00.0,8827,COMPLETE
@@ -144,6 +159,23 @@ mysql> select * from ordexp where order_id in (21,8);
 |        8 | 2013-07-25 00:00:00 |              8827 | COMPLETE     |
 +----------+---------------------+-------------------+--------------+
 6 rows in set (0.00 sec)
+
+
+4. Using option columns.
+   --------------------
+
+Create a table orditmsub which is having the columns.
+Now, export the data unload from the table order_items for the selected columns.
+
+a. First time insert
+
+
+b. update-mode (allowinsert)
+
+
+c. update-mode (updateonly)
+Make changes to multiple column data in the source file but include only one of the columns
+
 
 ========================================================================================================================
 Table with primary key:
