@@ -448,6 +448,20 @@ mysql> select * from orditmsub where itm_id in (5,17);
 
 No rows were inserted as the export job failed due to 'Can't parse input data: '3''
 
+
+
+Conclusion:
+----------
+--> Under columns it is mandatory to mention the key specified in update-key
+--> New rows are inserted.
+--> For the columns mentioned in the column option, same fields should be present in the input file. Mapping should be perfect.
+  The corresponding rows would get inserted with the values.
+--> If only few cols are mentioned in the option columns then the remaining cols are replaced with nulls. If the column cannot
+   be assigned null then the default value for the column as defined when the table is created is taken. If no default value is 
+   mentioned then the job fails.
+--> For the columns mentioned in the column option, if additional/less fields are present in the input file then the field values as 
+per the order mentioned in columns option is taken. This might give rise to erroneous results.
+
 5. Staging table:
    -------------
 
