@@ -135,7 +135,9 @@ Conclusion:  The new record was inserted while the existing record was updated f
 
 4. Option columns (updateonly)
    --------------
-   
+a. Two recs: one insert and one update rec. Count(Mapping fields) in the file = count(cols under the option columns) =
+count(columns in the table)
+
    mysql> select * from ordexp1 where order_id in (8,22);
 +----------+---------------------+-------------------+--------------+
 | order_id | order_date          | order_customer_id | order_status |
@@ -162,15 +164,224 @@ mysql> select * from ordexp1 where order_id in (8,22);
 +----------+---------------------+-------------------+--------------+
 
 
+b. Two recs: one insert and one update rec. Count(Mapping fields) in the file = count(cols under the option columns) <
+count(columns in the table)
+
+mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | PENDING      |
++----------+---------------------+-------------------+--------------+
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/ord5 --columns 'order_id, order_customer_id, order_status' \
+--update-mode updateonly --update-key order_id --table ordexp1
 
 
-5. Option columns
+ord5
+----
+22,12111,COMPLETE
+8,8827,BLOCKED
+
+
+mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | BLOCKED      |
++----------+---------------------+-------------------+--------------+
+1 row in set (0.02 sec)
+
+
+
+c. Two recs: one insert and one update rec. Count(Mapping fields) in the file < count(cols under the option columns) 
+
+mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | BLOCKED      |
++----------+---------------------+-------------------+--------------+
+1 row in set (0.00 sec)
+
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/ord6 --table ordexp1 \
+--columns 'order_id, order_date, order_customer_id, order_status' --update-mode updateonly --update-key order_id
+
+ord6
+----
+22,2013-07-25 00:00:00.0,COMPLETE
+8,2013-06-24 00:00:00.0,PENDING
+
+The job failed with this message Can't parse input data: 'COMPLETE'
+
+d. Two recs: one insert and one update rec. Count(Mapping fields) in the file > count(cols under the option columns) 
+
+mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+--------------+
+| order_id | order_date          | order_customer_id | order_status |
++----------+---------------------+-------------------+--------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | BLOCKED      |
++----------+---------------------+-------------------+--------------+
+1 row in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera --m 2 \
+--export-dir sqoop/sqoop-export/ord7 --table ordexp1 --columns 'order_id, order_status' \
+--update-mode updateonly --update-key order_id
+
+ord7
+----
+22,2013-07-25 00:00:00.0,12111,COMPLETE
+8,2013-06-25 00:00:00.0,8827,PAYMENT_PROCESSING
+
+mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+-----------------------+
+| order_id | order_date          | order_customer_id | order_status          |
++----------+---------------------+-------------------+-----------------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | 2013-06-25 00:00:00.0 |
++----------+---------------------+-------------------+-----------------------+
+1 row in set (0.00 sec)
 
 
 
 
 
+5. Option columns (allowinsert)
+   ---------------------------
+a. Two recs: one insert and one update rec. Count(Mapping fields) in the file = count(cols under the option columns) =
+count(columns in the table)
 
+mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+-----------------------+
+| order_id | order_date          | order_customer_id | order_status          |
++----------+---------------------+-------------------+-----------------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | 2013-06-25 00:00:00.0 |
++----------+---------------------+-------------------+-----------------------+
+1 row in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera --m 2 \
+--table ordexp1 --columns 'order_id, order_date, order_customer_id, order_status'  \
+--export-dir sqoop/sqoop-export/ord7 --update-mode allowinsert --update-key order_id
+
+ord7
+----
+22,2013-07-25 00:00:00.0,12111,COMPLETE
+8,2013-06-25 00:00:00.0,8827,PAYMENT_PROCESSING
+
+mysql> select * from ordexp1 where order_id in (8,22);
++----------+---------------------+-------------------+--------------------+
+| order_id | order_date          | order_customer_id | order_status       |
++----------+---------------------+-------------------+--------------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | PAYMENT_PROCESSING |
+|       22 | 2013-07-25 00:00:00 |             12111 | COMPLETE           |
++----------+---------------------+-------------------+--------------------+
+2 rows in set (0.00 sec)
+
+
+b. Two recs: one insert and one update rec. Count(Mapping fields) in the file = count(cols under the option columns) <
+count(columns in the table)
+
+mysql> select * from ordexp1 where order_id in (8,23);
++----------+---------------------+-------------------+--------------------+
+| order_id | order_date          | order_customer_id | order_status       |
++----------+---------------------+-------------------+--------------------+
+|        8 | 2013-06-25 00:00:00 |              8827 | PAYMENT_PROCESSING |
++----------+---------------------+-------------------+--------------------+
+1 row in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/ord8 --table ordexp1 --columns 'order_id, order_date, order_status' --m 2 \
+--update-mode allowinsert --update-key order_id --batch
+
+ord8
+----
+23,2013-09-25 00:00:00.0,COMPLETE
+8,2013-06-24 00:00:00.0,PENDING
+
+
+The job has failed. (error msg: Field 'order_customer_id' doesn't have a default value). The default value is already defined 
+during table creation as null.******
+
+so, retried with a different data. Altered the table ordexp1 and assigned default value 'xx' to column order_status.
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera \
+--export-dir sqoop/sqoop-export/ord8a --table ordexp1 --columns 'order_id, order_date, order_customer_id' --m 2 \
+--update-mode allowinsert --update-key order_id --batch
+
+ord 8a
+------
+23,2013-09-25 00:00:00.0,2231
+8,2013-06-24 00:00:00.0,3399
+
+mysql> select * from ordexp1 where order_id in (8,23);
++----------+---------------------+-------------------+--------------------+
+| order_id | order_date          | order_customer_id | order_status       |
++----------+---------------------+-------------------+--------------------+
+|        8 | 2013-06-24 00:00:00 |              3399 | PAYMENT_PROCESSING |
+|       23 | 2013-09-25 00:00:00 |              2231 | xx                 |
++----------+---------------------+-------------------+--------------------+
+2 rows in set (0.00 sec)
+
+c. Two recs: one insert and one update rec. Count(Mapping fields) in the file < count(cols under the option columns) 
+
+mysql> select * from ordexp1 where order_id in (8,24);
++----------+---------------------+-------------------+--------------------+
+| order_id | order_date          | order_customer_id | order_status       |
++----------+---------------------+-------------------+--------------------+
+|        8 | 2013-06-24 00:00:00 |              3399 | PAYMENT_PROCESSING |
++----------+---------------------+-------------------+--------------------+
+1 row in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera --m 2 \
+--table ordexp1 --export-dir sqoop/sqoop-export/ord9 --columns 'order_id,order_date, order_customer_id' \
+--update-mode allowinsert --update-key order_id
+
+ord9
+----
+24,2234
+8,12399
+
+mysql> select * from ordexp1 where order_id in (8,24);
++----------+---------------------+-------------------+--------------------+
+| order_id | order_date          | order_customer_id | order_status       |
++----------+---------------------+-------------------+--------------------+
+|        8 | 2013-06-24 00:00:00 |              3399 | PAYMENT_PROCESSING |
++----------+---------------------+-------------------+--------------------+
+1 row in set (0.00 sec)
+
+The job failed (Can't parse input data: '2234' )
+
+
+d. Two recs: one insert and one update rec. Count(Mapping fields) in the file > count(cols under the option columns) 
+
+mysql> select * from ordexp1 where order_id in (8,24);
++----------+---------------------+-------------------+--------------------+
+| order_id | order_date          | order_customer_id | order_status       |
++----------+---------------------+-------------------+--------------------+
+|        8 | 2013-06-24 00:00:00 |              3399 | PAYMENT_PROCESSING |
++----------+---------------------+-------------------+--------------------+
+1 row in set (0.00 sec)
+
+sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera --m 2 \
+--table ordexp1 --export-dir sqoop/sqoop-export/ord9a --columns 'order_id, order_customer_id' \
+--update-mode allowinsert --update-key order_id
+
+ord9a
+24,2234,PRE-PROCESSING
+8,12399,IN-PROGRESS
+
+the default value had to be changed for order_Date to 0000. The command was resubmitted. Then the rec was updated/inserted.
+
+mysql> select * from ordexp1 where order_id in (8,24);
++----------+---------------------+-------------------+--------------------+
+| order_id | order_date          | order_customer_id | order_status       |
++----------+---------------------+-------------------+--------------------+
+|        8 | 2013-06-24 00:00:00 |             12399 | PAYMENT_PROCESSING |
+|       24 | 0000-00-00 00:00:00 |              2234 | xx                 |
++----------+---------------------+-------------------+--------------------+
+2 rows in set (0.00 sec)
 
 
 
