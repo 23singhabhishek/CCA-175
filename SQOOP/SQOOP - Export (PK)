@@ -1,9 +1,8 @@
 
-====
-Table with primary key:
+TABLE WITH PRIMARY KEY:
 ---------------------
-1. Basic export:
-   -----------
+1. BASIC EXPORT:
+   ************
 mysql> describe ordexp1;
 +-------------------+-------------+------+-----+---------+-------+
 | Field             | Type        | Null | Key | Default | Extra |
@@ -70,7 +69,7 @@ The job failed but the record which was not present previously has got inserted.
 change was not updated.
 
 2. using option update-mode updateonly: 
-   -----------------------------------
+   ***********************************
    Include the option update-mode updateonly (without using update-key) and load the data to the table from the same file as 
    used in step (1). 
    
@@ -105,8 +104,8 @@ select * from ordexp1 where order_id in (31,4);
 No new record was inserted. The existing record has got updated.
 
 3. Using option update-mode allowinsert:
-   ------------------------------------
-   
+   ************************************
+ a.   
    sqoop export --connect 'jdbc:mysql://quickstart.cloudera:3306/retail_db' --username retail_dba --password cloudera --m 2 \
    --table ordexp1 --export-dir sqoop/sqoop-export/ord3 --update-mode allowinsert --update-key order_id --batch
 
@@ -147,7 +146,7 @@ count(columns in the table)
 1 row in set (0.00 sec)
 
    
-   sqoop export --connect 'jdbc:mysql://quickstart:3306/retail_db' --username retail_dba --password cloudera --m 2\
+  sqoop export --connect 'jdbc:mysql://quickstart:3306/retail_db' --username retail_dba --password cloudera --m 2\
    --table ordexp1 --columns 'order_id, order_date, order_customer_id, order_status'  \
    --export-dir sqoop/sqoop-export/ord4  --update-mode updateonly --update-key order_id --batch
 
@@ -249,7 +248,7 @@ mysql> select * from ordexp1 where order_id in (8,22);
 
 
 5. Option columns (allowinsert)
-   ---------------------------
+   ***************************
 a. Two recs: one insert and one update rec. Count(Mapping fields) in the file = count(cols under the option columns) =
 count(columns in the table)
 
