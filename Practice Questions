@@ -1,0 +1,7 @@
+1) Most selling product (But Quantity not by Cost) for every month in the database (Between July 2013 to July 2014)
+2) Who are the top 10 revenue generating customers?
+3) What are the top 10 revenue generating products?
+4) Top 5 revenue generating deparments;
+5) Top 5 revenue generating cities (from address of Customers)
+
+Please provide answers in Scala or Python or Spark SQL
