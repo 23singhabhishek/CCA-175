@@ -1,0 +1,50 @@
+1. Import the data from mysql to HDFS using SQOOP
+2. Transfer the avro file to local filesystem
+3. getmeta command
+   ===============
+avro-tools getmeta Documents/Avro/part-m-00000.avro
+
+avro.schema	{"type":"record","name":"departments","doc":"Sqoop import of departments","fields":[{"name":"department_id","type":["null","int"],"default":null,"columnName":"department_id","sqlType":"4"},{"name":"department_name","type":["null","string"],"default":null,"columnName":"department_name","sqlType":"12"}],"tableName":"departments"}
+
+4. getschema command
+   =================
+avro-tools getschema Documents/Avro/part-m-00000.avro
+
+{
+  "type" : "record",
+  "name" : "departments",
+  "doc" : "Sqoop import of departments",
+  "fields" : [ {
+    "name" : "department_id",
+    "type" : [ "null", "int" ],
+    "default" : null,
+    "columnName" : "department_id",
+    "sqlType" : "4"
+  }, {
+    "name" : "department_name",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "department_name",
+    "sqlType" : "12"
+  } ],
+  "tableName" : "departments"
+}
+
+5. Converting to json format
+   =========================
+avro-tools tojson Documents/Avro/part-m-00000.avro
+
+{"department_id":{"int":2},"department_name":{"string":"Fitness"}}
+{"department_id":{"int":3},"department_name":{"string":"Footwear"}}
+
+6. fromjson command
+   ================
+avro-tools getschema Documents/Avro/part-m-00000.avro > Documents/Avro/schm1.avsc
+
+avro-tools tojson Documents/Avro/part-m-00000.avro > Documents/Avro/dept.json
+
+avro-tools fromjson Documents/Avro/dept.json --schema-file Documents/Avro/schm1.avsc
+
+Objavro.codenullavro.schema�{"type":"record","name":"departments","doc":"Sqoop import of departments","fields":[{"name":"department_id","type":["null","int"],"default":null,"columnName":"department_id","sqlType":"4"},{"name":"department_name","type":["null","string"],"default":null,"columnName":"department_name","sqlType":"12"}],"tableName":"departments"}�љ�$._���w0�.FitnessFootwear�љ�$._���w0�
+
+
