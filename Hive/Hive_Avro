@@ -1,0 +1,39 @@
+
+[cloudera@quickstart Avro]$ sqoop import-all-tables --connect jdbc:mysql://quickstart.cloudera:3306/retail_db \
+--username retail_dba --password cloudera --warehouse-dir sqoop/sqoop-import/avro1 --as-avrodatafile --m 1
+
+[cloudera@quickstart Avro]$ hdfs dfs -put *.avsc hivavr/
+
+hive> CREATE DATABASE IF NOT EXISTS ccaavs;
+hive> USE ccaavs;
+
+
+CREATE EXTERNAL TABLE departments
+STORED AS AVRO
+LOCATION 'hdfs:///user/cloudera/sqoop/sqoop-import/avro1/departments'
+TBLPROPERTIES ('avro.schema.url'='hdfs://quickstart.cloudera/user/cloudera/hivavr/departments.avsc');
+
+
+$ impala-shell
+>CREATE EXTERNAL TABLE categories
+STORED AS AVRO
+LOCATION 'hdfs:///user/cloudera/sqoop/sqoop-import/avro1/categories'
+TBLPROPERTIES ('avro.schema.url'='hdfs://quickstart.cloudera/user/cloudera/hivavr/categories.avsc');
+
+
+CREATE EXTERNAL TABLE orders
+STORED AS AVRO
+LOCATION 'hdfs:///user/cloudera/sqoop/sqoop-import/avro1/orders'
+TBLPROPERTIES ('avro.schema.url'='hdfs://quickstart.cloudera/user/cloudera/hivavr/orders.avsc');
+
+
+
+CREATE EXTERNAL TABLE order_items
+STORED AS AVRO
+LOCATION 'hdfs:///user/cloudera/sqoop/sqoop-import/avro1/order_items'
+TBLPROPERTIES ('avro.schema.url'='hdfs://quickstart.cloudera/user/cloudera/hivavr/order_items.avsc');
+
+CREATE EXTERNAL TABLE products
+STORED AS AVRO
+LOCATION 'hdfs:///user/cloudera/sqoop/sqoop-import/avro1/products'
+TBLPROPERTIES ('avro.schema.url'='hdfs://quickstart.cloudera/user/cloudera/hivavr/products.avsc');
