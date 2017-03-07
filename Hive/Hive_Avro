@@ -20,6 +20,34 @@ STORED AS AVRO
 LOCATION 'hdfs:///user/cloudera/sqoop/sqoop-import/avro1/categories'
 TBLPROPERTIES ('avro.schema.url'='hdfs://quickstart.cloudera/user/cloudera/hivavr/categories.avsc');
 
+CREATE EXTERNAL TABLE customers
+STORED AS AVRO
+LOCATION 'hdfs://quickstart.cloudera/user/cloudera/sqoop/sqoop-import/avro1/customers'
+TBLPROPERTIES ('avro.schema.literal'= '{
+  "type" : "record",
+  "name" : "categories",
+  "doc" : "Sqoop import of categories",
+  "fields" : [ {
+    "name" : "category_id",
+    "type" : [ "null", "int" ],
+    "default" : null,
+    "columnName" : "category_id",
+    "sqlType" : "4"
+  }, {
+    "name" : "category_department_id",
+    "type" : [ "null", "int" ],
+    "default" : null,
+    "columnName" : "category_department_id",
+    "sqlType" : "4"
+  }, {
+    "name" : "category_name",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "category_name",
+    "sqlType" : "12"
+  } ],
+  "tableName" : "categories"
+}');
 
 CREATE EXTERNAL TABLE orders
 STORED AS AVRO
